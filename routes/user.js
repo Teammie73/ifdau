@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { isAuthenticated } = require('../middleware/auth');
 const { generateCertificate } = require('../utils/pdf');
 const path = require('path');
