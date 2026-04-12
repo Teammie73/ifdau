@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'dashboard' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Admin Dashboard', adminView: true }) %>
+    <div class="page-content">
+
+      <% if (success) { %><div class="alert alert-success"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><%= success %></div><% } %>
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+      <div class="welcome-card">
+        <h2>Willkommen, <%= user.name %>!</h2>
+        <p>Hier finden Sie eine Übersicht aller Aktivitäten im IfDAU-System.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <div class="stat-card-label">Mitarbeiter</div>
+          <div class="stat-card-value"><%= stats.total_users || 0 %></div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div class="stat-card-label">Aktive Unterweisungen</div>
+          <div class="stat-card-value"><%= stats.total_trainings || 0 %></div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="stat-card-label">Abgeschlossen</div>
+          <div class="stat-card-value"><%= stats.completed || 0 %></div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="stat-card-label">Offen</div>
+          <div class="stat-card-value"><%= stats.open || 0 %></div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/></svg>
+          </div>
+          <div class="stat-card-label">Überfällig</div>
+          <div class="stat-card-value"><%= stats.overdue || 0 %></div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <% const total = (stats.completed||0) + (stats.open||0) + (stats.overdue||0); %>
+      <% if (total > 0) { %>
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header"><span class="card-title">Gesamtfortschritt aller Zuweisungen</span></div>
+        <div class="card-body">
+          <div class="progress-label">
+            <span>Vollständig</span>
+            <span><%= stats.completed %> von <%= total %></span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:<%= Math.round((stats.completed/total)*100) %>%"></div>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Quick Actions -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px;">
+        <a href="/admin/trainings/new" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Neue Unterweisung
+        </a>
+        <a href="/admin/users/new" class="btn btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+          Neuer Mitarbeiter
+        </a>
+        <a href="/admin/assignments/new" class="btn btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          Neue Zuweisung
+        </a>
+        <a href="/admin/reports" class="btn btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Auswertungen
+        </a>
+      </div>
+
+      <!-- Recent Assignments -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Neueste Zuweisungen</span>
+          <a href="/admin/assignments" class="btn btn-sm btn-secondary">Alle anzeigen</a>
+        </div>
+        <div class="table-wrap">
+          <% if (recent.length === 0) { %>
+            <div class="empty-state"><h3>Noch keine Zuweisungen</h3></div>
+          <% } else { %>
+          <table>
+            <thead>
+              <tr>
+                <th>Mitarbeiter</th>
+                <th>Unterweisung</th>
+                <th>Zugewiesen am</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recent.forEach(r => { %>
+              <tr>
+                <td style="font-weight:500;"><%= r.user_name %></td>
+                <td class="td-muted"><%= r.training_title %></td>
+                <td class="td-muted"><%= new Date(r.assigned_at).toLocaleDateString('de-DE') %></td>
+                <td>
+                  <% if (r.status === 'completed') { %><span class="badge badge-completed">Bestanden</span>
+                  <% } else if (r.status === 'failed') { %><span class="badge badge-failed">Nicht bestanden</span>
+                  <% } else if (r.status === 'overdue') { %><span class="badge badge-overdue">Überfällig</span>
+                  <% } else { %><span class="badge badge-open">Offen</span><% } %>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

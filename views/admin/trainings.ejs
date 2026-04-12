@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'trainings' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Unterweisungen verwalten', adminView: true }) %>
+    <div class="page-content">
+
+      <% if (success) { %><div class="alert alert-success"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><%= success %></div><% } %>
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+      <div class="page-header">
+        <div class="page-header-title">
+          <h1>Unterweisungen</h1>
+          <p><%= trainings.length %> Einträge</p>
+        </div>
+        <div class="page-header-actions">
+          <div class="filter-tabs">
+            <a href="/admin/trainings?filter=active"   class="filter-tab <%= filter==='active'   ? 'active' : '' %>">Aktiv</a>
+            <a href="/admin/trainings?filter=archived" class="filter-tab <%= filter==='archived' ? 'active' : '' %>">Archiviert</a>
+            <a href="/admin/trainings?filter=all"      class="filter-tab <%= filter==='all'      ? 'active' : '' %>">Alle</a>
+          </div>
+          <a href="/admin/trainings/new" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Neue Unterweisung
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <% if (trainings.length === 0) { %>
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <h3>Keine Unterweisungen</h3>
+            <p>Erstellen Sie die erste Unterweisung.</p>
+          </div>
+        <% } else { %>
+        <div class="table-wrap">
+          <table id="trainings-table">
+            <thead>
+              <tr>
+                <th class="sortable" data-col="0" data-type="string">Titel <span class="sort-icon">↕</span></th>
+                <th class="sortable" data-col="1" data-type="string">Kategorie <span class="sort-icon">↕</span></th>
+                <th class="sortable" data-col="2" data-type="number">Bestehensgrenze <span class="sort-icon">↕</span></th>
+                <th class="sortable" data-col="3" data-type="string">Wiederholung <span class="sort-icon">↕</span></th>
+                <th class="sortable" data-col="4" data-type="string">Status <span class="sort-icon">↕</span></th>
+                <th class="sortable" data-col="5" data-type="date">Erstellt am <span class="sort-icon">↕</span></th>
+                <th>Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% trainings.forEach(t => { %>
+              <tr>
+                <td style="font-weight:500;max-width:300px;" data-sort="<%= t.title %>">
+                  <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="<%= t.title %>">
+                    <%= t.title %>
+                  </div>
+                </td>
+                <td class="td-muted" data-sort="<%= t.category_name || '' %>"><%= t.category_name || '–' %></td>
+                <td data-sort="<%= t.passing_score %>"><%= t.passing_score %> %</td>
+                <td class="td-muted" data-sort="<%= t.repeat_interval %>">
+                  <% if (t.repeat_interval === 'yearly') { %>Jährlich
+                  <% } else if (t.repeat_interval === 'halfyearly') { %>Halbjährlich
+                  <% } else { %>Einmalig<% } %>
+                </td>
+                <td data-sort="<%= t.status %>">
+                  <% if (t.status === 'active') { %>
+                    <span class="badge badge-active">Aktiv</span>
+                  <% } else { %>
+                    <span class="badge badge-archived">Archiviert</span>
+                  <% } %>
+                </td>
+                <td class="td-muted" data-sort="<%= t.created_at %>"><%= new Date(t.created_at).toLocaleDateString('de-DE') %></td>
+                <td>
+                  <div class="action-group">
+                    <a href="/admin/trainings/<%= t.id %>/edit" class="btn btn-sm btn-secondary" title="Bearbeiten">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </a>
+                    <form method="POST" action="/admin/trainings/<%= t.id %>/duplicate" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-secondary" title="Duplizieren">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                      </button>
+                    </form>
+                    <form method="POST" action="/admin/trainings/<%= t.id %>/archive" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-ghost" title="<%= t.status==='active'?'Archivieren':'Reaktivieren' %>"
+                              data-confirm="<%= t.status==='active' ? 'Wirklich archivieren?' : 'Wirklich reaktivieren?' %>">
+                        <% if (t.status === 'active') { %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                        <% } else { %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        <% } %>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <style>
+          th.sortable {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+          }
+          th.sortable:hover { background: var(--bg-hover, #f8fafc); }
+          th.sortable .sort-icon {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 11px;
+            opacity: 0.35;
+            transition: opacity .15s;
+          }
+          th.sortable.sort-asc .sort-icon,
+          th.sortable.sort-desc .sort-icon { opacity: 1; }
+          th.sortable.sort-asc .sort-icon::after  { content: '↑'; }
+          th.sortable.sort-desc .sort-icon::after { content: '↓'; }
+          th.sortable.sort-asc .sort-icon,
+          th.sortable.sort-desc .sort-icon { font-size: 13px; }
+        </style>
+
+        <script>
+          (function () {
+            const table = document.getElementById('trainings-table');
+            if (!table) return;
+            let sortCol = -1, sortDir = 'asc';
+
+            table.querySelectorAll('th.sortable').forEach(th => {
+              th.querySelector('.sort-icon').textContent = '↕';
+              th.addEventListener('click', () => {
+                const col = parseInt(th.dataset.col);
+                if (sortCol === col) {
+                  sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                  sortCol = col;
+                  sortDir = 'asc';
+                }
+
+                // Update header indicators
+                table.querySelectorAll('th.sortable').forEach(h => {
+                  h.classList.remove('sort-asc', 'sort-desc');
+                  h.querySelector('.sort-icon').textContent = '↕';
+                });
+                th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+                th.querySelector('.sort-icon').textContent = '';
+
+                // Sort rows
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                const type = th.dataset.type;
+
+                rows.sort((a, b) => {
+                  const aVal = a.cells[col].dataset.sort || '';
+                  const bVal = b.cells[col].dataset.sort || '';
+
+                  let cmp = 0;
+                  if (type === 'number') {
+                    cmp = parseFloat(aVal) - parseFloat(bVal);
+                  } else if (type === 'date') {
+                    cmp = new Date(aVal) - new Date(bVal);
+                  } else {
+                    cmp = aVal.localeCompare(bVal, 'de', { sensitivity: 'base' });
+                  }
+                  return sortDir === 'asc' ? cmp : -cmp;
+                });
+
+                rows.forEach(r => tbody.appendChild(r));
+              });
+            });
+          })();
+        </script>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

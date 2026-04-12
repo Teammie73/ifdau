@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'assignments' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Neue Zuweisung', adminView: true }) %>
+    <div class="page-content">
+
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+      <div style="max-width:760px;margin:0 auto;">
+        <div class="d-flex align-center gap-12 mb-24">
+          <a href="/admin/assignments" class="btn btn-sm btn-secondary">← Zurück</a>
+          <h2 style="font-size:18px;font-weight:600;">Neue Zuweisung erstellen</h2>
+        </div>
+
+        <form method="POST" action="/admin/assignments">
+
+          <!-- ── Vorlage laden ─────────────────────────────── -->
+          <% if (templates && templates.length > 0) { %>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-body" style="padding:16px 20px;">
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <label style="font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap;">
+                  Vorlage laden:
+                </label>
+                <select id="templateSelect" class="form-control" style="flex:1;min-width:200px;max-width:360px;">
+                  <option value="">– Vorlage auswählen –</option>
+                  <% templates.forEach(tpl => { %>
+                    <option value="<%= encodeURIComponent(tpl.training_ids) %>" data-ids="<%= tpl.training_ids %>">
+                      <%= tpl.name %>
+                    </option>
+                  <% }) %>
+                </select>
+                <button type="button" id="applyTemplate" class="btn btn-secondary btn-sm">Übernehmen</button>
+                <a href="/admin/assignment-templates" class="btn btn-ghost btn-sm" style="font-size:12px;">Vorlagen verwalten →</a>
+              </div>
+            </div>
+          </div>
+          <% } else { %>
+          <div style="margin-bottom:12px;text-align:right;">
+            <a href="/admin/assignment-templates/new" class="btn btn-ghost btn-sm" style="font-size:12px;">
+              + Vorlage erstellen
+            </a>
+          </div>
+          <% } %>
+
+          <div class="card">
+            <div class="card-body">
+
+              <!-- ── Unterweisungen (Checkboxen) ────────────── -->
+              <div class="form-group">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                  <label class="form-label" style="margin:0;">
+                    Unterweisungen <span class="required">*</span>
+                  </label>
+                  <div style="display:flex;gap:8px;">
+                    <button type="button" class="btn btn-ghost btn-sm" id="selectAll" style="font-size:12px;">Alle</button>
+                    <button type="button" class="btn btn-ghost btn-sm" id="selectNone" style="font-size:12px;">Keine</button>
+                  </div>
+                </div>
+
+                <div id="trainingList" style="border:1.5px solid var(--border);border-radius:var(--radius);max-height:340px;overflow-y:auto;">
+                  <% if (trainings.length === 0) { %>
+                    <div style="padding:20px;text-align:center;color:var(--text-secondary);font-size:14px;">
+                      Keine aktiven Unterweisungen vorhanden.
+                    </div>
+                  <% } %>
+                  <% let lastCat = null; %>
+                  <% trainings.forEach((t, i) => { %>
+                    <% if (t.category_name !== lastCat) { lastCat = t.category_name; %>
+                      <div style="padding:6px 14px;background:var(--bg-secondary,#f8fafc);font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border);">
+                        <%= t.category_name || 'Ohne Kategorie' %>
+                      </div>
+                    <% } %>
+                    <label class="training-check-row" style="display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border,#e5e7eb);transition:background .1s;"
+                           onmouseenter="this.style.background='var(--bg-secondary,#f8fafc)'"
+                           onmouseleave="this.style.background=''">
+                      <input type="checkbox" name="training_ids[]" value="<%= t.id %>"
+                             style="width:16px;height:16px;accent-color:var(--primary,#dc2626);flex-shrink:0;">
+                      <span style="font-size:14px;font-weight:500;flex:1;"><%= t.title %></span>
+                      <span style="font-size:12px;color:var(--text-secondary);">≥ <%= t.passing_score %>%</span>
+                    </label>
+                  <% }) %>
+                </div>
+                <div class="form-hint" id="checkCount">0 Unterweisung(en) ausgewählt</div>
+              </div>
+
+              <!-- ── Fälligkeitsdatum ────────────────────────── -->
+              <div class="form-group">
+                <label class="form-label">Fälligkeitsdatum <span style="font-weight:400;color:var(--text-secondary);">(gilt für alle gewählten Unterweisungen)</span></label>
+                <input type="date" name="due_date" class="form-control"
+                       min="<%= new Date().toISOString().split('T')[0] %>">
+              </div>
+
+              <!-- ── Zuweisen an ─────────────────────────────── -->
+              <div class="form-group">
+                <label class="form-label">Zuweisen an <span class="required">*</span></label>
+                <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border:1.5px solid var(--border);border-radius:var(--radius);">
+                  <label class="check-group">
+                    <input type="radio" name="target" value="all" required>
+                    <span style="font-weight:500;">Alle aktiven Mitarbeiter</span>
+                  </label>
+                  <label class="check-group">
+                    <input type="radio" name="target" value="abteilung">
+                    <span style="font-weight:500;">Nach Abteilung</span>
+                  </label>
+                  <div id="abteilungSelect" style="display:none;padding-left:24px;">
+                    <select name="abteilung" class="form-control">
+                      <option value="">Abteilung wählen...</option>
+                      <% abteilungen.forEach(a => { %>
+                        <option value="<%= a.abteilung %>"><%= a.abteilung %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                  <label class="check-group">
+                    <input type="radio" name="target" value="user">
+                    <span style="font-weight:500;">Einzelne Mitarbeiter</span>
+                  </label>
+                  <div id="userSelect" style="display:none;padding-left:24px;">
+                    <select name="user_ids" class="form-control" multiple style="height:160px;">
+                      <% users.forEach(u => { %>
+                        <option value="<%= u.id %>"><%= u.name %> (<%= u.email %>)<%= u.abteilung ? ' – '+u.abteilung : '' %></option>
+                      <% }) %>
+                    </select>
+                    <div class="form-hint">Strg+Klick für Mehrfachauswahl</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;">
+                <a href="/admin/assignments" class="btn btn-secondary">Abbrechen</a>
+                <button type="submit" class="btn btn-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  Zuweisungen erstellen
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+<script>
+// Target radio → show/hide
+document.querySelectorAll('input[name="target"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    document.getElementById('abteilungSelect').style.display = radio.value === 'abteilung' ? 'block' : 'none';
+    document.getElementById('userSelect').style.display      = radio.value === 'user'      ? 'block' : 'none';
+  });
+});
+
+// Checkbox counter
+function updateCount() {
+  const n = document.querySelectorAll('input[name="training_ids[]"]:checked').length;
+  document.getElementById('checkCount').textContent = n + ' Unterweisung(en) ausgewählt';
+}
+document.querySelectorAll('input[name="training_ids[]"]').forEach(cb => cb.addEventListener('change', updateCount));
+updateCount();
+
+// Select all / none
+document.getElementById('selectAll').addEventListener('click', () => {
+  document.querySelectorAll('input[name="training_ids[]"]').forEach(cb => cb.checked = true);
+  updateCount();
+});
+document.getElementById('selectNone').addEventListener('click', () => {
+  document.querySelectorAll('input[name="training_ids[]"]').forEach(cb => cb.checked = false);
+  updateCount();
+});
+
+// Vorlage laden
+const applyBtn = document.getElementById('applyTemplate');
+if (applyBtn) {
+  applyBtn.addEventListener('click', () => {
+    const sel = document.getElementById('templateSelect');
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.dataset.ids) return;
+    let ids;
+    try { ids = JSON.parse(opt.dataset.ids).map(String); } catch(e) { return; }
+    document.querySelectorAll('input[name="training_ids[]"]').forEach(cb => {
+      cb.checked = ids.includes(cb.value);
+    });
+    updateCount();
+  });
+}
+</script>
+</body>
+</html>

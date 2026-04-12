@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/sidebar', { activePage: 'trainings' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Meine Unterweisungen', adminView: false }) %>
+    <div class="page-content">
+
+      <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+      <% if (assignments.length === 0) { %>
+        <div class="card">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:block;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <h3>Keine Unterweisungen zugewiesen</h3>
+            <p>Kontaktieren Sie Ihren Administrator für Zuweisung.</p>
+          </div>
+        </div>
+      <% } else { %>
+        <% assignments.forEach(a => { %>
+        <div class="training-item" style="cursor:default;">
+          <div class="training-item-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div class="training-item-info">
+            <div class="training-item-title"><%= a.title %></div>
+            <div class="training-item-meta">
+              <%= a.category_name || 'Keine Kategorie' %>
+              <% if (a.due_date) { %>
+                &nbsp;·&nbsp; Fällig: <%= new Date(a.due_date).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) %>
+              <% } %>
+              <% if (a.score !== null && a.score !== undefined) { %>
+                &nbsp;·&nbsp; Ergebnis: <%= Math.round(a.score) %> %
+              <% } %>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <% if (a.status === 'completed') { %>
+              <span class="badge badge-completed">✓ Bestanden</span>
+            <% } else if (a.status === 'failed') { %>
+              <span class="badge badge-failed">✗ Nicht bestanden</span>
+            <% } else if (a.status === 'overdue') { %>
+              <span class="badge badge-overdue">⚠ Überfällig</span>
+            <% } else { %>
+              <span class="badge badge-open">● Offen</span>
+            <% } %>
+            <a href="/trainings/<%= a.id %>/read" class="btn btn-sm btn-primary">
+              <%= a.status === 'completed' ? 'Wiederholen' : 'Jetzt starten' %>
+            </a>
+          </div>
+        </div>
+        <% }) %>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'categories' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: category ? 'Kategorie bearbeiten' : 'Neue Kategorie', adminView: true }) %>
+    <div class="page-content">
+
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+      <div style="max-width:500px;margin:0 auto;">
+        <div class="d-flex align-center gap-12 mb-24">
+          <a href="/admin/categories" class="btn btn-sm btn-secondary">← Zurück</a>
+          <h2 style="font-size:18px;font-weight:600;"><%= category ? 'Kategorie bearbeiten' : 'Neue Kategorie' %></h2>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <form method="POST" action="<%= category ? '/admin/categories/'+category.id : '/admin/categories' %>">
+              <% if (category) { %><input type="hidden" name="_method" value="PUT"><% } %>
+
+              <div class="form-group">
+                <label class="form-label">Name <span class="required">*</span></label>
+                <input type="text" name="name" class="form-control" required
+                       value="<%= category ? category.name : '' %>" placeholder="z.B. Arbeitsschutz">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Icon</label>
+                <select name="icon" class="form-control">
+                  <option value="shield"      <%= !category || category.icon==='shield'      ? 'selected' : '' %>>Schild (Datenschutz)</option>
+                  <option value="hard-hat"    <%= category && category.icon==='hard-hat'    ? 'selected' : '' %>>Schutzhelm (Arbeitsschutz)</option>
+                  <option value="flame"       <%= category && category.icon==='flame'       ? 'selected' : '' %>>Flamme (Brandschutz)</option>
+                  <option value="users"       <%= category && category.icon==='users'       ? 'selected' : '' %>>Personen (AGG)</option>
+                  <option value="building"    <%= category && category.icon==='building'    ? 'selected' : '' %>>Gebäude (Fremdfirmen)</option>
+                  <option value="heart-pulse" <%= category && category.icon==='heart-pulse' ? 'selected' : '' %>>Herz (Infektionsschutz)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Beschreibung</label>
+                <textarea name="description" class="form-control" rows="3"
+                          placeholder="Kurze Beschreibung der Kategorie"><%= category ? (category.description || '') : '' %></textarea>
+              </div>
+
+              <div style="display:flex;gap:12px;justify-content:flex-end;">
+                <a href="/admin/categories" class="btn btn-secondary">Abbrechen</a>
+                <button type="submit" class="btn btn-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <%= category ? 'Speichern' : 'Erstellen' %>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

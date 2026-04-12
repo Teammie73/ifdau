@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'reports' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Auswertungen', adminView: true }) %>
+    <div class="page-content">
+
+      <!-- Firmenfilter -->
+      <div class="card" style="margin-bottom:20px;padding:0;">
+        <div class="card-body" style="padding:14px 20px;">
+          <form method="GET" action="/admin/reports" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <label style="font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap;">Unternehmen:</label>
+            <select name="firma" class="form-control" style="width:280px;" onchange="this.form.submit()">
+              <option value="">Alle Unternehmen</option>
+              <% firmen.forEach(f => { %>
+                <option value="<%= f %>" <%= selectedFirma === f ? 'selected' : '' %>><%= f %></option>
+              <% }) %>
+            </select>
+            <% if (selectedFirma) { %>
+              <a href="/admin/reports" class="btn btn-sm btn-ghost" style="font-size:12px;">✕ Filter zurücksetzen</a>
+            <% } %>
+          </form>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" style="margin-bottom:24px;">
+        <div class="stat-card green">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="stat-card-label">Vollständig bestanden</div>
+          <div class="stat-card-value"><%= stats.completed || 0 %></div>
+          <div class="stat-card-sub"><%= selectedFirma ? selectedFirma : 'Alle Unternehmen' %></div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="stat-card-label">Noch offen</div>
+          <div class="stat-card-value"><%= stats.open || 0 %></div>
+          <div class="stat-card-sub"><%= selectedFirma ? selectedFirma : 'Alle Unternehmen' %></div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/></svg>
+          </div>
+          <div class="stat-card-label">Überfällig</div>
+          <div class="stat-card-value"><%= stats.overdue || 0 %></div>
+          <div class="stat-card-sub"><%= selectedFirma ? selectedFirma : 'Alle Unternehmen' %></div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            Zuweisungen (<%= assignments.length %>)
+            <% if (selectedFirma) { %><span style="font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:8px;">– <%= selectedFirma %></span><% } %>
+          </span>
+          <div class="d-flex gap-8">
+            <a href="/admin/reports/export/csv<%= selectedFirma ? '?firma='+encodeURIComponent(selectedFirma) : '' %>" class="btn btn-sm btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              CSV Export
+            </a>
+          </div>
+        </div>
+        <% if (assignments.length === 0) { %>
+          <div class="empty-state"><h3>Keine Daten vorhanden</h3></div>
+        <% } else { %>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mitarbeiter</th>
+                <th>E-Mail</th>
+                <th>Firma</th>
+                <th>Abteilung</th>
+                <th>Unterweisung</th>
+                <th>Fällig am</th>
+                <th>Status</th>
+                <th>Ergebnis</th>
+                <th>Abgeschlossen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% assignments.forEach(a => { %>
+              <tr>
+                <td style="font-weight:500;"><%= a.user_name %></td>
+                <td class="td-muted text-xs"><%= a.user_email %></td>
+                <td class="td-muted"><%= a.firma || '–' %></td>
+                <td class="td-muted"><%= a.abteilung || '–' %></td>
+                <td class="td-muted" style="max-width:160px;"><%= a.training_title %></td>
+                <td class="td-muted">
+                  <% if (a.due_date) { %><%= new Date(a.due_date).toLocaleDateString('de-DE') %><% } else { %>–<% } %>
+                </td>
+                <td>
+                  <% if (a.status === 'completed') { %><span class="badge badge-completed">Bestanden</span>
+                  <% } else if (a.status === 'failed') { %><span class="badge badge-failed">Nicht bestanden</span>
+                  <% } else if (a.status === 'overdue') { %><span class="badge badge-overdue">Überfällig</span>
+                  <% } else { %><span class="badge badge-open">Offen</span><% } %>
+                </td>
+                <td>
+                  <% if (a.score !== null && a.score !== undefined) { %>
+                    <span style="font-weight:600;color:<%= a.score >= 80 ? 'var(--success)' : 'var(--danger)' %>">
+                      <%= Math.round(a.score) %> %
+                    </span>
+                  <% } else { %><span class="td-muted">–</span><% } %>
+                </td>
+                <td class="td-muted text-xs">
+                  <% if (a.completed_at) { %><%= new Date(a.completed_at).toLocaleDateString('de-DE') %><% } else { %>–<% } %>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

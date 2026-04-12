@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'status-reports' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Statusberichte', adminView: true }) %>
+    <div class="page-content">
+
+      <!-- Firmenauswahl -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-body" style="padding:16px 20px;">
+          <form method="GET" action="/admin/status-reports" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <label style="font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap;">Unternehmen auswählen:</label>
+            <select name="firma" class="form-control" style="width:320px;" onchange="this.form.submit()">
+              <option value="">– Unternehmen wählen –</option>
+              <% firmen.forEach(f => { %>
+                <option value="<%= f %>" <%= selectedFirma === f ? 'selected' : '' %>><%= f %></option>
+              <% }) %>
+            </select>
+            <% if (!firmen.length) { %>
+              <span style="font-size:13px;color:var(--text-secondary);">
+                Noch keine Firmen hinterlegt – bitte unter
+                <a href="/admin/users">Mitarbeiter</a> das Feld „Firma" befüllen.
+              </span>
+            <% } %>
+          </form>
+        </div>
+      </div>
+
+      <% if (selectedFirma) { %>
+
+      <!-- Header mit Export-Buttons -->
+      <div class="page-header" style="margin-bottom:16px;">
+        <div class="page-header-title">
+          <h1 style="font-size:20px;"><%= selectedFirma %></h1>
+          <p>Statusbericht · Stand: <%= now.toLocaleString('de-DE') %> · <%= users.length %> Mitarbeiter</p>
+        </div>
+        <div class="page-header-actions">
+          <a href="/admin/status-reports/print?firma=<%= encodeURIComponent(selectedFirma) %>"
+             target="_blank" class="btn btn-secondary btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            Drucken
+          </a>
+          <a href="/admin/status-reports/export/excel?firma=<%= encodeURIComponent(selectedFirma) %>"
+             class="btn btn-secondary btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            Excel
+          </a>
+          <a href="/admin/status-reports/export/pdf?firma=<%= encodeURIComponent(selectedFirma) %>"
+             class="btn btn-primary btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+            PDF Export
+          </a>
+        </div>
+      </div>
+
+      <!-- Statusleiste -->
+      <%
+        const greenCount = users.filter(u => u.overallStatus === 'green').length;
+        const redCount   = users.filter(u => u.overallStatus === 'red').length;
+        const grayCount  = users.filter(u => u.overallStatus === 'gray').length;
+      %>
+      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
+          <span style="width:12px;height:12px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+          <span style="font-size:13px;font-weight:600;color:#166534;"><%= greenCount %> Vollständig</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;">
+          <span style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
+          <span style="font-size:13px;font-weight:600;color:#991b1b;"><%= redCount %> Ausstehend</span>
+        </div>
+        <% if (grayCount > 0) { %>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+          <span style="width:12px;height:12px;border-radius:50%;background:#94a3b8;display:inline-block;"></span>
+          <span style="font-size:13px;font-weight:600;color:#64748b;"><%= grayCount %> Keine Zuweisungen</span>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Tabelle -->
+      <div class="card">
+        <% if (users.length === 0) { %>
+          <div class="empty-state"><h3>Keine aktiven Mitarbeiter mit dieser Firma</h3></div>
+        <% } else { %>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:50px;">Status</th>
+                <th>Name</th>
+                <th>E-Mail-Adresse</th>
+                <th>Ausstellungsdatum</th>
+                <th>Fälligkeitsdatum</th>
+                <th>Gültig bis</th>
+                <th>Module</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% users.forEach(u => { %>
+              <tr>
+                <td style="text-align:center;">
+                  <% if (u.overallStatus === 'green') { %>
+                    <span title="Vollständig" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#dcfce7;">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="#16a34a" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    </span>
+                  <% } else if (u.overallStatus === 'red') { %>
+                    <span title="Ausstehend" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#fee2e2;">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="#dc2626" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </span>
+                  <% } else { %>
+                    <span title="Keine Zuweisungen" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#f1f5f9;">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#94a3b8" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                    </span>
+                  <% } %>
+                </td>
+                <td style="font-weight:500;"><%= u.name %></td>
+                <td class="td-muted"><%= u.email %></td>
+                <td class="td-muted">
+                  <%= u.lastCertDate ? new Date(u.lastCertDate).toLocaleDateString('de-DE') : '–' %>
+                </td>
+                <td class="td-muted">
+                  <% if (u.nextDue) { %>
+                    <span style="color:<%= new Date(u.nextDue) < new Date() ? 'var(--danger)' : 'inherit' %>">
+                      <%= new Date(u.nextDue).toLocaleDateString('de-DE') %>
+                    </span>
+                  <% } else { %>–<% } %>
+                </td>
+                <td class="td-muted">
+                  <% if (u.validUntil) { %>
+                    <span style="color:<%= new Date(u.validUntil) < new Date() ? 'var(--danger)' : 'inherit' %>">
+                      <%= new Date(u.validUntil).toLocaleDateString('de-DE') %>
+                    </span>
+                  <% } else { %>–<% } %>
+                </td>
+                <td>
+                  <span style="font-weight:600;color:<%= u.completedModules === u.totalModules && u.totalModules > 0 ? 'var(--success)' : (u.totalModules === 0 ? 'var(--text-secondary)' : 'var(--danger)') %>">
+                    <%= u.completedModules %>/<%= u.totalModules %>
+                  </span>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% } %>
+      </div>
+
+      <% } else { %>
+      <!-- Kein Unternehmen gewählt -->
+      <div class="card">
+        <div class="empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
+          <h3>Unternehmen auswählen</h3>
+          <p>Wählen Sie oben ein Unternehmen aus, um den Statusbericht zu laden.</p>
+        </div>
+      </div>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('partials/head') %></head>
+<body style="background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;">
+<div style="text-align:center;max-width:400px;">
+  <div style="font-size:80px;font-weight:900;color:var(--border);line-height:1;margin-bottom:16px;">404</div>
+  <h1 style="font-size:24px;font-weight:700;margin-bottom:8px;"><%= title || 'Seite nicht gefunden' %></h1>
+  <p style="color:var(--text-secondary);margin-bottom:24px;">Diese Seite existiert nicht oder Sie haben keinen Zugriff darauf.</p>
+  <% if (user) { %>
+    <a href="<%= user.role === 'admin' ? '/admin/dashboard' : '/dashboard' %>" class="btn btn-primary">Zum Dashboard</a>
+  <% } else { %>
+    <a href="/login" class="btn btn-primary">Zum Login</a>
+  <% } %>
+</div>
+<style>
+  :root {
+    --bg: #f8fafc; --border: #e2e8f0; --text-secondary: #64748b;
+    --primary: #dc2626; --primary-dark: #b91c1c;
+  }
+  .btn { display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:14px;font-weight:500;border:1.5px solid transparent;cursor:pointer;transition:all .15s;text-decoration:none; }
+  .btn-primary { background:var(--primary);color:#fff;border-color:var(--primary); }
+  .btn-primary:hover { background:var(--primary-dark); }
+</style>
+</body>
+</html>

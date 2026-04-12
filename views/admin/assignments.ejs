@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'assignments' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Zuweisungen', adminView: true }) %>
+    <div class="page-content">
+
+      <% if (success) { %><div class="alert alert-success"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><%= success %></div><% } %>
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+      <div class="page-header">
+        <div class="page-header-title">
+          <h1>Zuweisungen</h1>
+          <p><%= assignments.length %> Einträge</p>
+        </div>
+        <a href="/admin/assignments/new" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Neue Zuweisung
+        </a>
+      </div>
+
+      <div class="card">
+        <% if (assignments.length === 0) { %>
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            <h3>Keine Zuweisungen</h3>
+            <p>Erstellen Sie die erste Zuweisung.</p>
+          </div>
+        <% } else { %>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mitarbeiter</th>
+                <th>Abteilung</th>
+                <th>Unterweisung</th>
+                <th>Fällig am</th>
+                <th>Status</th>
+                <th>Zugewiesen am</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% assignments.forEach(a => { %>
+              <tr>
+                <td style="font-weight:500;"><%= a.user_name %></td>
+                <td class="td-muted"><%= a.abteilung || '–' %></td>
+                <td class="td-muted" style="max-width:200px;"><%= a.training_title %></td>
+                <td class="td-muted">
+                  <% if (a.due_date) { %>
+                    <%= new Date(a.due_date).toLocaleDateString('de-DE') %>
+                  <% } else { %> – <% } %>
+                </td>
+                <td>
+                  <% if (a.status === 'completed') { %><span class="badge badge-completed">Bestanden</span>
+                  <% } else if (a.status === 'failed') { %><span class="badge badge-failed">Nicht bestanden</span>
+                  <% } else if (a.status === 'overdue') { %><span class="badge badge-overdue">Überfällig</span>
+                  <% } else { %><span class="badge badge-open">Offen</span><% } %>
+                </td>
+                <td class="td-muted"><%= new Date(a.assigned_at).toLocaleDateString('de-DE') %></td>
+                <td>
+                  <form method="POST" action="/admin/assignments/<%= a.id %>/delete" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-ghost" style="color:var(--danger);"
+                            data-confirm="Zuweisung wirklich löschen?">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

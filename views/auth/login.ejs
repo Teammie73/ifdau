@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #ffffff;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ══════════════════════════════════════
+       LEFT PANEL
+    ══════════════════════════════════════ */
+    .lp-left {
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 56px;
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+      border-right: 1px solid #f1f5f9;
+    }
+
+    /* Subtle decorative radial glows */
+    .lp-left::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: -80px;
+      width: 480px; height: 480px;
+      background: radial-gradient(circle, rgba(255,204,0,.10) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .lp-left::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; right: -60px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(220,38,38,.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    /* Logo */
+    .lp-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative; z-index: 1;
+      text-decoration: none;
+    }
+    .lp-brand img {
+      height: 220px;
+      width: auto;
+    }
+
+    /* Hero text */
+    .lp-hero {
+      position: relative; z-index: 1;
+    }
+    .lp-hero h1 {
+      font-size: 36px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+    }
+    .lp-hero p {
+      font-size: 15px;
+      color: #64748b;
+      line-height: 1.65;
+      max-width: 400px;
+    }
+
+    /* Feature list */
+    .lp-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+      position: relative; z-index: 1;
+    }
+    .lp-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+    .lp-feature-icon {
+      width: 60px; height: 60px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: #dc2626;
+    }
+    .lp-feature-icon svg { width: 30px; height: 30px; }
+    .lp-feature-body strong {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .lp-feature-body span {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    .lp-footer {
+      font-size: 12px;
+      color: #94a3b8;
+      position: relative; z-index: 1;
+    }
+
+    /* ══════════════════════════════════════
+       RIGHT PANEL
+    ══════════════════════════════════════ */
+    .lp-right {
+      width: 480px;
+      flex-shrink: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 40px;
+      background: #f8fafc;
+    }
+
+    .lp-form-wrap {
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .lp-form-header {
+      margin-bottom: 28px;
+    }
+    .lp-form-header h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .lp-form-header p {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Alert */
+    .lp-alert {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #991b1b;
+      margin-bottom: 18px;
+    }
+    .lp-alert svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* Form */
+    .lp-field { margin-bottom: 16px; }
+    .lp-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .lp-label a {
+      font-weight: 400;
+      font-size: 12px;
+      color: #dc2626;
+      text-decoration: none;
+    }
+    .lp-label a:hover { text-decoration: underline; }
+    .lp-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #0f172a;
+      background: #ffffff;
+      transition: border-color .15s, box-shadow .15s;
+      font-family: inherit;
+    }
+    .lp-input:focus {
+      outline: none;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220,38,38,.1);
+    }
+    .lp-input::placeholder { color: #94a3b8; }
+
+    .lp-btn {
+      width: 100%;
+      padding: 11px 16px;
+      margin-top: 6px;
+      background: #dc2626;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, transform .1s;
+      letter-spacing: 0.1px;
+    }
+    .lp-btn:hover  { background: #b91c1c; }
+    .lp-btn:active { transform: scale(.99); }
+
+    .lp-form-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .lp-form-footer a { color: #dc2626; text-decoration: none; }
+    .lp-form-footer a:hover { text-decoration: underline; }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .lp-left { display: none; }
+      .lp-right {
+        width: 100%;
+        background: #ffffff;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Left: Branding ─────────────────────────────────── -->
+  <div class="lp-left">
+
+    <a href="/" class="lp-brand">
+      <img src="/logo.png" alt="IfDAU">
+    </a>
+
+    <div class="lp-hero">
+      <h1>Willkommen zurück.<br>Bereit für deine<br>Unterweisung?</h1>
+      <p>Melde dich an, um deine Unterweisungen zu absolvieren, Zertifikate abzurufen und deinen Compliance-Status einzusehen.</p>
+    </div>
+
+    <ul class="lp-features">
+      <li class="lp-feature">
+        <div class="lp-feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+          </svg>
+        </div>
+        <div class="lp-feature-body">
+          <strong>Rechtssicher &amp; nachvollziehbar</strong>
+          <span>Gesetzeskonforme Unterweisungen mit lückenloser Dokumentation.</span>
+        </div>
+      </li>
+      <li class="lp-feature">
+        <div class="lp-feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
+          </svg>
+        </div>
+        <div class="lp-feature-body">
+          <strong>Online absolvieren</strong>
+          <span>Lernen und Prüfen bequem am PC, Tablet oder Smartphone.</span>
+        </div>
+      </li>
+      <li class="lp-feature">
+        <div class="lp-feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+          </svg>
+        </div>
+        <div class="lp-feature-body">
+          <strong>Zertifikat auf Knopfdruck</strong>
+          <span>PDF-Zertifikat sofort nach bestandener Lernerfolgskontrolle.</span>
+        </div>
+      </li>
+    </ul>
+
+    <div class="lp-footer">© <%= new Date().getFullYear() %> IfDAU. Alle Rechte vorbehalten.</div>
+
+  </div>
+
+  <!-- ── Right: Login form ──────────────────────────────── -->
+  <div class="lp-right">
+    <div class="lp-form-wrap">
+
+      <div class="lp-form-header">
+        <h2>Anmelden</h2>
+        <p>Melde dich mit deinen Zugangsdaten an, um fortzufahren.</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="lp-alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+          </svg>
+          <%= error %>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/login">
+        <div class="lp-field">
+          <label class="lp-label" for="email">E-Mail-Adresse</label>
+          <input type="email" id="email" name="email" class="lp-input"
+                 placeholder="name@unternehmen.de" required autofocus autocomplete="email">
+        </div>
+        <div class="lp-field">
+          <label class="lp-label" for="password">
+            Passwort
+            <a href="/forgot-password">Vergessen?</a>
+          </label>
+          <input type="password" id="password" name="password" class="lp-input"
+                 placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="lp-btn">Anmelden</button>
+      </form>
+
+      <div class="lp-form-footer">
+        Probleme beim Anmelden? <a href="/forgot-password">Passwort zurücksetzen</a>
+      </div>
+
+    </div>
+  </div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

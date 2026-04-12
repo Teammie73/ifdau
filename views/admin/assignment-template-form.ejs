@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'templates' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: template ? 'Vorlage bearbeiten' : 'Neue Vorlage', adminView: true }) %>
+    <div class="page-content">
+
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+      <div style="max-width:640px;margin:0 auto;">
+        <div class="d-flex align-center gap-12 mb-24">
+          <a href="/admin/assignment-templates" class="btn btn-sm btn-secondary">← Zurück</a>
+          <h2 style="font-size:18px;font-weight:600;"><%= template ? 'Vorlage bearbeiten' : 'Neue Vorlage erstellen' %></h2>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <form method="POST" action="<%= template ? '/admin/assignment-templates/'+template.id : '/admin/assignment-templates' %>">
+              <% if (template) { %><input type="hidden" name="_method" value="PUT"><% } %>
+
+              <div class="form-group">
+                <label class="form-label">Name <span class="required">*</span></label>
+                <input type="text" name="name" class="form-control" required
+                       value="<%= template ? template.name : '' %>"
+                       placeholder="z.B. Einarbeitung Produktion">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Beschreibung</label>
+                <textarea name="description" class="form-control" rows="2"
+                          placeholder="Kurze Beschreibung (optional)"><%= template ? (template.description || '') : '' %></textarea>
+              </div>
+
+              <div class="form-group">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                  <label class="form-label" style="margin:0;">Enthaltene Unterweisungen <span class="required">*</span></label>
+                  <div style="display:flex;gap:8px;">
+                    <button type="button" class="btn btn-ghost btn-sm" id="selectAll" style="font-size:12px;">Alle</button>
+                    <button type="button" class="btn btn-ghost btn-sm" id="selectNone" style="font-size:12px;">Keine</button>
+                  </div>
+                </div>
+
+                <%
+                  let selectedIds = [];
+                  if (template && template.training_ids) {
+                    selectedIds = template.training_ids.map(String);
+                  }
+                %>
+
+                <div style="border:1.5px solid var(--border);border-radius:var(--radius);max-height:360px;overflow-y:auto;">
+                  <% if (trainings.length === 0) { %>
+                    <div style="padding:20px;text-align:center;color:var(--text-secondary);font-size:14px;">
+                      Keine aktiven Unterweisungen vorhanden.
+                    </div>
+                  <% } %>
+                  <% let lastCat = null; %>
+                  <% trainings.forEach(t => { %>
+                    <% if (t.category_name !== lastCat) { lastCat = t.category_name; %>
+                      <div style="padding:6px 14px;background:var(--bg-secondary,#f8fafc);font-size:11px;font-weight:700;color:var(--text-secondary);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border);">
+                        <%= t.category_name || 'Ohne Kategorie' %>
+                      </div>
+                    <% } %>
+                    <label style="display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border,#e5e7eb);transition:background .1s;"
+                           onmouseenter="this.style.background='var(--bg-secondary,#f8fafc)'"
+                           onmouseleave="this.style.background=''">
+                      <input type="checkbox" name="training_ids[]" value="<%= t.id %>"
+                             <%= selectedIds.includes(String(t.id)) ? 'checked' : '' %>
+                             style="width:16px;height:16px;accent-color:var(--primary,#dc2626);flex-shrink:0;">
+                      <span style="font-size:14px;font-weight:500;flex:1;"><%= t.title %></span>
+                      <span style="font-size:12px;color:var(--text-secondary);">≥ <%= t.passing_score %>%</span>
+                    </label>
+                  <% }) %>
+                </div>
+                <div class="form-hint" id="checkCount">0 ausgewählt</div>
+              </div>
+
+              <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;">
+                <a href="/admin/assignment-templates" class="btn btn-secondary">Abbrechen</a>
+                <button type="submit" class="btn btn-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <%= template ? 'Speichern' : 'Vorlage erstellen' %>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+<script>
+function updateCount() {
+  const n = document.querySelectorAll('input[name="training_ids[]"]:checked').length;
+  document.getElementById('checkCount').textContent = n + ' Unterweisung(en) ausgewählt';
+}
+document.querySelectorAll('input[name="training_ids[]"]').forEach(cb => cb.addEventListener('change', updateCount));
+document.getElementById('selectAll').addEventListener('click', () => {
+  document.querySelectorAll('input[name="training_ids[]"]').forEach(cb => cb.checked = true);
+  updateCount();
+});
+document.getElementById('selectNone').addEventListener('click', () => {
+  document.querySelectorAll('input[name="training_ids[]"]').forEach(cb => cb.checked = false);
+  updateCount();
+});
+updateCount();
+</script>
+</body>
+</html>

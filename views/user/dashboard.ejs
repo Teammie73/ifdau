@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/sidebar', { activePage: 'dashboard' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Dashboard', adminView: false }) %>
+    <div class="page-content">
+
+      <% if (success) { %>
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <%= success %>
+        </div>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+      <% } %>
+
+      <!-- Welcome -->
+      <div class="welcome-card">
+        <h2>Willkommen, <%= user.name %>!</h2>
+        <p>Hier sehen Sie eine Übersicht Ihrer Unterweisungen.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div class="stat-card-label">Zugewiesen</div>
+          <div class="stat-card-value"><%= total %></div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="stat-card-label">Abgeschlossen</div>
+          <div class="stat-card-value"><%= completed %></div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="stat-card-label">Offen</div>
+          <div class="stat-card-value"><%= total - completed %></div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <% if (total > 0) { %>
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-body">
+          <div class="progress-label">
+            <span>Gesamtfortschritt</span>
+            <span><%= completed %> von <%= total %> abgeschlossen</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:<%= total > 0 ? Math.round((completed/total)*100) : 0 %>%"></div>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Assignments -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Meine Unterweisungen</span>
+          <a href="/my-trainings" class="btn btn-sm btn-secondary">Alle anzeigen</a>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <% if (assignments.length === 0) { %>
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <h3>Keine Unterweisungen</h3>
+              <p>Ihnen wurden noch keine Unterweisungen zugewiesen.</p>
+            </div>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Unterweisung</th>
+                    <th>Kategorie</th>
+                    <th>Fällig am</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% assignments.forEach(a => { %>
+                  <tr>
+                    <td style="font-weight:500;"><%= a.title %></td>
+                    <td class="td-muted"><%= a.category_name || '–' %></td>
+                    <td class="td-muted">
+                      <% if (a.due_date) { %>
+                        <%= new Date(a.due_date).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) %>
+                      <% } else { %> – <% } %>
+                    </td>
+                    <td>
+                      <% if (a.status === 'completed') { %>
+                        <span class="badge badge-completed">✓ Bestanden</span>
+                      <% } else if (a.status === 'failed') { %>
+                        <span class="badge badge-failed">✗ Nicht bestanden</span>
+                      <% } else if (a.status === 'overdue') { %>
+                        <span class="badge badge-overdue">⚠ Überfällig</span>
+                      <% } else { %>
+                        <span class="badge badge-open">● Offen</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (a.status !== 'completed') { %>
+                        <a href="/trainings/<%= a.id %>/read" class="btn btn-sm btn-primary">Starten</a>
+                      <% } else { %>
+                        <a href="/trainings/<%= a.id %>/read" class="btn btn-sm btn-secondary">Wiederholen</a>
+                      <% } %>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

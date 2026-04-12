@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'users' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Mitarbeiter verwalten', adminView: true }) %>
+    <div class="page-content">
+
+      <% if (success) { %><div class="alert alert-success"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><%= success %></div><% } %>
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+      <div class="page-header">
+        <div class="page-header-title">
+          <h1>Mitarbeiter</h1>
+          <p><%= users.length %> Benutzer</p>
+        </div>
+        <div class="page-header-actions">
+          <!-- CSV Import -->
+          <label class="btn btn-secondary" style="cursor:pointer;" title="CSV importieren (Spalten: name, email, abteilung, position, role, password)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            CSV Import
+            <input type="file" accept=".csv" style="display:none;" id="csvFileInput">
+          </label>
+          <a href="/admin/users/new" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+            Neuer Mitarbeiter
+          </a>
+        </div>
+      </div>
+
+      <!-- CSV import form (hidden) -->
+      <form method="POST" action="/admin/users/import/csv" enctype="multipart/form-data" id="csvImportForm" style="display:none;">
+        <input type="file" name="csvfile" id="csvFileHidden" accept=".csv">
+      </form>
+
+      <div class="card">
+        <% if (users.length === 0) { %>
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <h3>Keine Mitarbeiter</h3>
+            <p>Legen Sie den ersten Mitarbeiter an.</p>
+          </div>
+        <% } else { %>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>E-Mail</th>
+                <th>Firma</th>
+                <th>Abteilung</th>
+                <th>Position</th>
+                <th>Rolle</th>
+                <th>Status</th>
+                <th>Erstellt</th>
+                <th>Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% users.forEach(u => { %>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">
+                      <%= u.name.charAt(0).toUpperCase() %>
+                    </div>
+                    <span style="font-weight:500;"><%= u.name %></span>
+                  </div>
+                </td>
+                <td class="td-muted"><%= u.email %></td>
+                <td class="td-muted"><%= u.firma || '–' %></td>
+                <td class="td-muted"><%= u.abteilung || '–' %></td>
+                <td class="td-muted"><%= u.position || '–' %></td>
+                <td>
+                  <% if (u.role === 'admin') { %>
+                    <span class="badge badge-admin">Admin</span>
+                  <% } else { %>
+                    <span class="badge badge-mitarbeiter">Mitarbeiter</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (u.status === 'active') { %>
+                    <span class="badge badge-active">Aktiv</span>
+                  <% } else { %>
+                    <span class="badge badge-inactive">Inaktiv</span>
+                  <% } %>
+                </td>
+                <td class="td-muted"><%= new Date(u.created_at).toLocaleDateString('de-DE') %></td>
+                <td>
+                  <div class="action-group">
+                    <a href="/admin/users/<%= u.id %>/edit" class="btn btn-sm btn-secondary">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </a>
+                    <% if (u.email !== 'admin@ifdau.de') { %>
+                    <form method="POST" action="/admin/users/<%= u.id %>/toggle-status" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-ghost"
+                              title="<%= u.status==='active' ? 'Deaktivieren' : 'Aktivieren' %>"
+                              data-confirm="<%= u.status==='active' ? 'Mitarbeiter deaktivieren?' : 'Mitarbeiter aktivieren?' %>"
+                              style="color:<%= u.status==='active' ? 'var(--danger)' : 'var(--success)' %>">
+                        <% if (u.status === 'active') { %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                        <% } else { %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <% } %>
+                      </button>
+                    </form>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+<script>
+// CSV import trigger
+document.getElementById('csvFileInput').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const hidden = document.getElementById('csvFileHidden');
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  hidden.files = dt.files;
+  if (confirm(`"${file.name}" importieren?`)) {
+    document.getElementById('csvImportForm').submit();
+  }
+});
+</script>
+</body>
+</html>

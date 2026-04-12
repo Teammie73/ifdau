@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/usr/local/bin/npm install:*)",
+      "Bash(/opt/homebrew/bin/npm install:*)",
+      "WebFetch(domain:ifdau.vercel.app)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH\")",
+      "Bash(npm install:*)",
+      "Bash(xargs kill:*)",
+      "Bash(npm start:*)",
+      "Read(//tmp/**)",
+      "Read(//private/tmp/**)",
+      "Bash(jobs)"
+    ]
+  }
+}

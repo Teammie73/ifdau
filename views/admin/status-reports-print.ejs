@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statusbericht – <%= firma %></title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      color: #0f172a;
+      background: #fff;
+      padding: 32px 40px;
+    }
+
+    /* Header */
+    .report-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .report-logo img { height: 64px; width: auto; }
+    .report-meta { text-align: right; }
+    .report-meta h1 { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+    .report-meta .subtitle { font-size: 12px; color: #64748b; }
+
+    /* Summary badges */
+    .summary { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .summary-badge {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 12px; font-weight: 600;
+    }
+    .summary-badge .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .badge-green { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-green .dot { background: #22c55e; }
+    .badge-red   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-red   .dot { background: #ef4444; }
+    .badge-gray  { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+    .badge-gray  .dot { background: #94a3b8; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: #1e293b;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 8px 10px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; vertical-align: middle; }
+    .status-cell { text-align: center; }
+    .status-dot {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 50%;
+    }
+    .dot-green { background: #dcfce7; }
+    .dot-red   { background: #fee2e2; }
+    .dot-gray  { background: #f1f5f9; }
+    .td-muted  { color: #64748b; }
+    .td-danger { color: #dc2626; font-weight: 600; }
+    .td-success { color: #16a34a; font-weight: 600; }
+    .modules-ok  { color: #16a34a; font-weight: 700; }
+    .modules-bad { color: #dc2626; font-weight: 700; }
+
+    /* Footer */
+    .report-footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Print controls (hidden in print) */
+    .print-controls {
+      position: fixed; top: 16px; right: 16px;
+      display: flex; gap: 8px; z-index: 100;
+    }
+    .btn-print, .btn-close {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    .btn-print { background: #dc2626; color: #fff; }
+    .btn-print:hover { background: #b91c1c; }
+    .btn-close { background: #e2e8f0; color: #374151; }
+    .btn-close:hover { background: #cbd5e1; }
+
+    @media print {
+      .print-controls { display: none; }
+      body { padding: 16px 20px; }
+      thead th { background: #1e293b !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      tbody tr:nth-child(even) { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .dot-green { background: #dcfce7 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .dot-red   { background: #fee2e2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-controls">
+    <button class="btn-print" onclick="window.print()">🖨 Drucken</button>
+    <button class="btn-close" onclick="window.close()">✕ Schließen</button>
+  </div>
+
+  <div class="report-header">
+    <div class="report-logo">
+      <img src="/logo.png" alt="IfDAU">
+    </div>
+    <div class="report-meta">
+      <h1>Statusbericht</h1>
+      <div class="subtitle"><strong><%= firma %></strong></div>
+      <div class="subtitle" style="margin-top:4px;">Stand: <%= now.toLocaleString('de-DE') %></div>
+      <div class="subtitle"><%= users.length %> Mitarbeiter</div>
+    </div>
+  </div>
+
+  <%
+    const greenCount = users.filter(u => u.overallStatus === 'green').length;
+    const redCount   = users.filter(u => u.overallStatus === 'red').length;
+    const grayCount  = users.filter(u => u.overallStatus === 'gray').length;
+  %>
+  <div class="summary">
+    <div class="summary-badge badge-green"><span class="dot"></span><%= greenCount %> Vollständig</div>
+    <div class="summary-badge badge-red"><span class="dot"></span><%= redCount %> Ausstehend</div>
+    <% if (grayCount > 0) { %><div class="summary-badge badge-gray"><span class="dot"></span><%= grayCount %> Keine Zuweisungen</div><% } %>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:42px;">Status</th>
+        <th>Name</th>
+        <th>E-Mail-Adresse</th>
+        <th>Ausstellungsdatum</th>
+        <th>Fälligkeitsdatum</th>
+        <th>Gültig bis</th>
+        <th>Module</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(u => { %>
+      <tr>
+        <td class="status-cell">
+          <% if (u.overallStatus === 'green') { %>
+            <span class="status-dot dot-green">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="#16a34a" style="width:13px;height:13px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+            </span>
+          <% } else if (u.overallStatus === 'red') { %>
+            <span class="status-dot dot-red">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="#dc2626" style="width:13px;height:13px;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </span>
+          <% } else { %>
+            <span class="status-dot dot-gray">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="#94a3b8" style="width:13px;height:13px;"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+            </span>
+          <% } %>
+        </td>
+        <td style="font-weight:500;"><%= u.name %></td>
+        <td class="td-muted"><%= u.email %></td>
+        <td class="td-muted"><%= u.lastCertDate ? new Date(u.lastCertDate).toLocaleDateString('de-DE') : '–' %></td>
+        <td>
+          <% if (u.nextDue) { %>
+            <span class="<%= new Date(u.nextDue) < new Date() ? 'td-danger' : 'td-muted' %>">
+              <%= new Date(u.nextDue).toLocaleDateString('de-DE') %>
+            </span>
+          <% } else { %><span class="td-muted">–</span><% } %>
+        </td>
+        <td>
+          <% if (u.validUntil) { %>
+            <span class="<%= new Date(u.validUntil) < new Date() ? 'td-danger' : 'td-muted' %>">
+              <%= new Date(u.validUntil).toLocaleDateString('de-DE') %>
+            </span>
+          <% } else { %><span class="td-muted">–</span><% } %>
+        </td>
+        <td class="<%= u.completedModules === u.totalModules && u.totalModules > 0 ? 'modules-ok' : (u.totalModules === 0 ? 'td-muted' : 'modules-bad') %>">
+          <%= u.completedModules %>/<%= u.totalModules %>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <div class="report-footer">
+    <span>IfDAU – Institut für Digitale Arbeitsunterweisungen</span>
+    <span>Erstellt am <%= now.toLocaleString('de-DE') %></span>
+  </div>
+
+</body>
+</html>

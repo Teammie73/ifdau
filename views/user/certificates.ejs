@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/sidebar', { activePage: 'certificates' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Meine Zertifikate', adminView: false }) %>
+    <div class="page-content">
+
+      <% if (certificates.length === 0) { %>
+        <div class="card">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:block;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+            </svg>
+            <h3>Noch keine Zertifikate</h3>
+            <p>Schließen Sie eine Unterweisung erfolgreich ab, um ein Zertifikat zu erhalten.</p>
+          </div>
+        </div>
+      <% } else { %>
+        <% certificates.forEach(cert => { %>
+        <div class="cert-card">
+          <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0;">
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+              </svg>
+            </div>
+            <div class="cert-info">
+              <div class="cert-title"><%= cert.training_title %></div>
+              <div class="cert-meta">
+                <%= cert.category_name || 'Keine Kategorie' %>
+                &nbsp;·&nbsp; Ergebnis: <strong><%= Math.round(cert.score) %> %</strong>
+                &nbsp;·&nbsp; Ausgestellt: <%= new Date(cert.issued_at).toLocaleDateString('de-DE', {day:'2-digit',month:'long',year:'numeric'}) %>
+              </div>
+            </div>
+          </div>
+          <div style="flex-shrink:0;">
+            <span style="font-size:11px;color:var(--text-secondary);display:block;text-align:right;margin-bottom:4px;">
+              Nr. IFDAU-<%= String(cert.id).padStart(6,'0') %>
+            </span>
+            <% if (cert.pdf_path) { %>
+              <a href="/certificates/<%= cert.id %>/download" class="btn btn-sm btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                PDF
+              </a>
+            <% } else { %>
+              <span class="badge badge-archived">Kein PDF</span>
+            <% } %>
+          </div>
+        </div>
+        <% }) %>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

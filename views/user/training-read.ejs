@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    .read-confirm {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: #f8fafc;
+      border: 1.5px solid var(--border, #e2e8f0);
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-top: 32px;
+    }
+    .read-check-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      flex: 1;
+      min-width: 200px;
+    }
+    .read-check-label input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary, #dc2626);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .read-check-text strong {
+      display: block;
+      font-size: 14px;
+      color: var(--text-primary, #0f172a);
+    }
+    .read-check-text span {
+      font-size: 12px;
+      color: var(--text-secondary, #64748b);
+    }
+    #startQuizBtn:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<div id="readingProgress" class="reading-progress"></div>
+<div class="app-layout">
+  <%- include('../partials/sidebar', { activePage: 'trainings' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: assignment.title, adminView: false }) %>
+    <div class="page-content">
+
+      <div style="max-width:860px;margin:0 auto;">
+
+        <!-- Navigation / Meta -->
+        <div class="d-flex align-center gap-12 mb-24" style="flex-wrap:wrap;">
+          <a href="/my-trainings" class="btn btn-sm btn-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Zurück
+          </a>
+          <% if (assignment.category_name) { %>
+            <span class="badge badge-open"><%= assignment.category_name %></span>
+          <% } %>
+          <% if (assignment.due_date) { %>
+            <span class="text-sm text-muted">
+              Fällig: <%= new Date(assignment.due_date).toLocaleDateString('de-DE', {day:'2-digit',month:'long',year:'numeric'}) %>
+            </span>
+          <% } %>
+        </div>
+
+        <!-- Content card -->
+        <div class="card">
+          <div class="card-body" style="padding:36px;">
+
+            <!-- Lerninhalt -->
+            <div class="training-content">
+              <%- assignment.content %>
+            </div>
+
+            <!-- Checkbox: erscheint nach dem kompletten Lerninhalt -->
+            <% if (assignment.status !== 'completed') { %>
+            <div class="read-confirm">
+              <label class="read-check-label" for="readConfirm">
+                <input type="checkbox" id="readConfirm">
+                <div class="read-check-text">
+                  <strong>Lerninhalt vollständig gelesen</strong>
+                  <span>/ <em>I have read the complete content</em></span>
+                </div>
+              </label>
+              <a href="/trainings/<%= assignment.id %>/quiz"
+                 class="btn btn-primary"
+                 id="startQuizBtn"
+                 disabled
+                 style="display:inline-flex;align-items:center;gap:8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:17px;height:17px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                Zur Lernerfolgskontrolle
+              </a>
+            </div>
+            <% } else { %>
+            <!-- Bereits bestanden: direkt zur Lernerfolgskontrolle -->
+            <div class="read-confirm">
+              <span style="font-size:13px;color:var(--text-secondary);">
+                Diese Unterweisung wurde bereits bestanden.
+              </span>
+              <a href="/trainings/<%= assignment.id %>/quiz"
+                 class="btn btn-primary"
+                 style="display:inline-flex;align-items:center;gap:8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:17px;height:17px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                Zur Lernerfolgskontrolle
+              </a>
+            </div>
+            <% } %>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+<% if (assignment.status !== 'completed') { %>
+<script>
+  var cb  = document.getElementById('readConfirm');
+  var btn = document.getElementById('startQuizBtn');
+  cb.addEventListener('change', function () {
+    if (this.checked) {
+      btn.removeAttribute('disabled');
+    } else {
+      btn.setAttribute('disabled', 'disabled');
+    }
+  });
+</script>
+<% } %>
+</body>
+</html>
