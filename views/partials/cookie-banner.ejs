@@ -1,0 +1,67 @@
+<div class="cookie-banner" id="cookieBanner" style="display:none;">
+  <div class="cookie-banner-inner">
+    <div class="cookie-banner-text">
+      <strong>Wir verwenden Cookies</strong>
+      <span>Diese Website verwendet ausschließlich technisch notwendige Session-Cookies, um den Login-Bereich zu betreiben. Es werden keine Tracking- oder Marketing-Cookies eingesetzt.
+      <a href="/datenschutz">Datenschutzerklärung</a></span>
+    </div>
+    <button class="cookie-btn-accept" id="cookieAccept">Verstanden</button>
+  </div>
+</div>
+<style>
+  .cookie-banner {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #1e293b;
+    color: #f1f5f9;
+    z-index: 9999;
+    padding: 16px 24px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,.18);
+  }
+  .cookie-banner-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .cookie-banner-text {
+    flex: 1;
+    min-width: 220px;
+    font-size: 13px;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .cookie-banner-text strong { font-size: 14px; color: #fff; }
+  .cookie-banner-text a { color: #fbbf24; text-decoration: underline; }
+  .cookie-btn-accept {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    flex-shrink: 0;
+  }
+  .cookie-btn-accept:hover { background: #b91c1c; }
+</style>
+<script>
+(function() {
+  var banner = document.getElementById('cookieBanner');
+  var btn    = document.getElementById('cookieAccept');
+  if (!localStorage.getItem('ifdau_cookie_ok')) {
+    banner.style.display = 'block';
+  }
+  btn.addEventListener('click', function() {
+    localStorage.setItem('ifdau_cookie_ok', '1');
+    banner.style.display = 'none';
+  });
+})();
+</script>

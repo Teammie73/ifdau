@@ -3,12 +3,27 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const pool = require('../db/connection');
 
-// GET /
+// GET / – Landing Page
 router.get('/', (req, res) => {
   if (req.session.user) {
     return res.redirect(req.session.user.role === 'admin' ? '/admin/dashboard' : '/dashboard');
   }
-  res.redirect('/login');
+  res.render('public/landing', { title: 'IfDAU – Digitale Arbeitsunterweisungen' });
+});
+
+// GET /impressum
+router.get('/impressum', (req, res) => {
+  res.render('public/impressum', { title: 'Impressum' });
+});
+
+// GET /datenschutz
+router.get('/datenschutz', (req, res) => {
+  res.render('public/datenschutz', { title: 'Datenschutzerklärung' });
+});
+
+// GET /agb
+router.get('/agb', (req, res) => {
+  res.render('public/agb', { title: 'AGB' });
 });
 
 // GET /login

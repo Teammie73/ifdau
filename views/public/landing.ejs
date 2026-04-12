@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IfDAU – Digitale Arbeitsunterweisungen</title>
+  <meta name="description" content="IfDAU – Institut für Digitale Arbeitsunterweisungen. Rechtssichere Online-Unterweisungen mit Zertifikat für Ihr Unternehmen.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%23dc2626'/><text x='16' y='21' text-anchor='middle' font-size='13' font-weight='800' fill='white' font-family='Arial'>If</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.6;
+    }
+    a { color: #dc2626; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Public Header ──────────────────────────────────── */
+    .pub-header {
+      position: sticky; top: 0;
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #e2e8f0;
+      z-index: 100;
+    }
+    .pub-header-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 24px;
+      height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 24px;
+    }
+    .pub-logo img { height: 52px; width: auto; display: block; }
+    .pub-logo:hover { text-decoration: none; }
+    .pub-nav {
+      display: flex; align-items: center; gap: 28px;
+    }
+    .pub-nav a {
+      font-size: 14px; font-weight: 500; color: #475569;
+    }
+    .pub-nav a:hover { color: #dc2626; text-decoration: none; }
+    .pub-btn-login {
+      background: #dc2626; color: #fff !important;
+      padding: 9px 20px; border-radius: 7px;
+      font-size: 14px; font-weight: 600;
+      transition: background .15s;
+    }
+    .pub-btn-login:hover { background: #b91c1c !important; text-decoration: none; }
+    .pub-nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+
+    /* ── Hero ───────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #7f1d1d 100%);
+      color: #fff;
+      padding: 100px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-inner { max-width: 780px; margin: 0 auto; position: relative; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(220,38,38,.25); border: 1px solid rgba(220,38,38,.4);
+      color: #fca5a5; border-radius: 20px;
+      padding: 5px 14px; font-size: 13px; font-weight: 600;
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 54px);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+      margin-bottom: 24px;
+    }
+    .hero h1 span { color: #fbbf24; }
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 18px);
+      color: #cbd5e1;
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+    }
+    .btn-hero-primary {
+      background: #dc2626; color: #fff;
+      padding: 15px 32px; border-radius: 8px;
+      font-size: 16px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background .15s, transform .1s;
+      box-shadow: 0 4px 14px rgba(220,38,38,.4);
+    }
+    .btn-hero-primary:hover { background: #b91c1c; transform: translateY(-1px); text-decoration: none; }
+    .btn-hero-secondary {
+      background: rgba(255,255,255,.1); color: #fff;
+      border: 1px solid rgba(255,255,255,.25);
+      padding: 15px 32px; border-radius: 8px;
+      font-size: 16px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background .15s;
+    }
+    .btn-hero-secondary:hover { background: rgba(255,255,255,.18); text-decoration: none; }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 48px;
+      margin-top: 64px; flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-num { font-size: 36px; font-weight: 900; color: #fbbf24; }
+    .hero-stat-label { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+
+    /* ── Section Wrapper ────────────────────────────────── */
+    .section { padding: 80px 24px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      display: inline-block;
+      font-size: 12px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: #dc2626;
+      background: #fef2f2; border-radius: 4px;
+      padding: 4px 10px; margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 800; letter-spacing: -.5px;
+      color: #0f172a; margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 16px; color: #64748b;
+      max-width: 560px; line-height: 1.7;
+      margin-bottom: 56px;
+    }
+
+    /* ── Feature Cards ──────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 32px;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .feature-card:hover {
+      border-color: #dc2626;
+      box-shadow: 0 8px 28px rgba(220,38,38,.1);
+      transform: translateY(-3px);
+    }
+    .feature-icon {
+      width: 56px; height: 56px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .feature-icon svg { width: 28px; height: 28px; }
+    .feature-icon.red   { background: #fef2f2; }
+    .feature-icon.gold  { background: #fffbeb; }
+    .feature-icon.dark  { background: #f1f5f9; }
+    .feature-card h3 {
+      font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #0f172a;
+    }
+    .feature-card p { font-size: 14px; color: #64748b; line-height: 1.7; }
+
+    /* ── How it works ───────────────────────────────────── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 32px;
+      counter-reset: step-counter;
+    }
+    .step-item { position: relative; }
+    .step-num {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #dc2626; color: #fff;
+      font-size: 20px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .step-item h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .step-item p  { font-size: 14px; color: #64748b; line-height: 1.6; }
+
+    /* ── Benefits ───────────────────────────────────────── */
+    .benefits-section { background: #0f172a; color: #fff; }
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .benefit-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 20px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+    }
+    .benefit-check {
+      width: 32px; height: 32px; flex-shrink: 0;
+      background: rgba(220,38,38,.2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 2px;
+    }
+    .benefit-check svg { width: 16px; height: 16px; }
+    .benefit-item h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .benefit-item p  { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+
+    /* ── Testimonials ───────────────────────────────────── */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .testimonial-card {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 28px;
+    }
+    .testimonial-stars { color: #f59e0b; font-size: 18px; margin-bottom: 14px; }
+    .testimonial-text {
+      font-size: 15px; line-height: 1.7; color: #334155;
+      margin-bottom: 20px; font-style: italic;
+    }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #dc2626; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; flex-shrink: 0;
+    }
+    .testimonial-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+    .testimonial-role { font-size: 12px; color: #64748b; }
+
+    /* ── CTA Section ────────────────────────────────────── */
+    .cta-section {
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      color: #fff; text-align: center;
+    }
+    .cta-section .section-title { color: #fff; }
+    .cta-section .section-sub   { color: rgba(255,255,255,.8); margin-left: auto; margin-right: auto; }
+    .btn-cta-white {
+      background: #fff; color: #dc2626;
+      padding: 15px 36px; border-radius: 8px;
+      font-size: 16px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: transform .1s, box-shadow .15s;
+      box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    }
+    .btn-cta-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.2); text-decoration: none; color: #dc2626; }
+
+    /* ── Footer ─────────────────────────────────────────── */
+    .pub-footer {
+      background: #0f172a; color: #94a3b8;
+      padding: 28px 24px;
+      font-size: 13px;
+    }
+    .pub-footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .pub-footer-nav { display: flex; gap: 20px; flex-wrap: wrap; }
+    .pub-footer-nav a { color: #94a3b8; }
+    .pub-footer-nav a:hover { color: #fff; text-decoration: none; }
+
+    /* ── Mobile ─────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .pub-nav a:not(.pub-btn-login) { display: none; }
+      .hero-stats { gap: 28px; }
+      .hero-stat-num { font-size: 28px; }
+      .pub-footer-inner { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────────── -->
+<header class="pub-header">
+  <div class="pub-header-inner">
+    <a href="/" class="pub-logo">
+      <img src="/logo.png" alt="IfDAU Logo">
+    </a>
+    <nav class="pub-nav">
+      <a href="#features">Funktionen</a>
+      <a href="#vorteile">Vorteile</a>
+      <a href="#kontakt">Kontakt</a>
+      <a href="/login" class="pub-btn-login">Anmelden</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ── HERO ────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      DSGVO-konform &amp; rechtssicher
+    </div>
+    <h1>Digitale Arbeitsunterweisungen –<br><span>rechtssicher &amp; einfach</span></h1>
+    <p class="hero-sub">
+      Unterweisen Sie Ihre Mitarbeiter online, vollständig rechtskonform nach deutschen Arbeitsschutzgesetzen – mit automatischer Zertifikatserstellung und lückenloser Dokumentation.
+    </p>
+    <div class="hero-actions">
+      <a href="/login" class="btn-hero-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg>
+        Jetzt anmelden
+      </a>
+      <a href="#kontakt" class="btn-hero-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+        Kontakt aufnehmen
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-label">Rechtssicher</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">24/7</div>
+        <div class="hero-stat-label">Verfügbar</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">PDF</div>
+        <div class="hero-stat-label">Zertifikate</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">DSGVO</div>
+        <div class="hero-stat-label">Konform</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ─────────────────────────────────────────────── -->
+<section class="section" id="features" style="background:#f8fafc;">
+  <div class="section-inner">
+    <span class="section-label">Funktionen</span>
+    <h2 class="section-title">Alles was Sie für rechtskonforme Unterweisungen brauchen</h2>
+    <p class="section-sub">Von der Erstellung bis zum Zertifikat – vollständig digital und rechtskonform nach deutschen Vorschriften.</p>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon red">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#dc2626"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+        </div>
+        <h3>Rechtssicher &amp; dokumentiert</h3>
+        <p>Alle Unterweisungen werden gemäß ArbSchG, DGUV und BetrSichV rechtssicher dokumentiert. Lückenloser Nachweis für Behörden und Versicherungen.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon gold">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#d97706"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3"/></svg>
+        </div>
+        <h3>Online absolvieren</h3>
+        <p>Mitarbeiter erhalten ihre Unterweisungen direkt im Browser – auf dem PC, Tablet oder Smartphone. Keine Software-Installation nötig.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon dark">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#334155"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+        </div>
+        <h3>Zertifikat auf Knopfdruck</h3>
+        <p>Nach erfolgreich bestandener Lernerfolgskontrolle wird automatisch ein rechtssicheres PDF-Zertifikat mit Datum und Unterschrift erstellt.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ──────────────────────────────────────────── -->
+<section class="section">
+  <div class="section-inner">
+    <span class="section-label">So funktioniert es</span>
+    <h2 class="section-title">In 4 Schritten zur rechtssicheren Unterweisung</h2>
+    <p class="section-sub">Schnell eingerichtet, einfach zu bedienen – für Administratoren und Mitarbeiter.</p>
+    <div class="steps-grid">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <h3>Unterweisung anlegen</h3>
+        <p>Erstellen Sie Unterweisungen mit Lerninhalt und Lernerfolgskontrolle im Admin-Bereich.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <h3>Mitarbeitern zuweisen</h3>
+        <p>Weisen Sie Unterweisungen gezielt einzelnen Mitarbeitern oder ganzen Abteilungen zu.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <h3>Online absolvieren</h3>
+        <p>Mitarbeiter lesen den Inhalt, bestätigen das Lesen und absolvieren die Lernerfolgskontrolle.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <h3>Zertifikat erhalten</h3>
+        <p>Bei Bestehen wird automatisch ein PDF-Zertifikat ausgestellt und im System gespeichert.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BENEFITS ─────────────────────────────────────────────── -->
+<section class="section benefits-section" id="vorteile">
+  <div class="section-inner">
+    <span class="section-label" style="background:rgba(220,38,38,.3);color:#fca5a5;">Vorteile</span>
+    <h2 class="section-title" style="color:#fff;">Warum IfDAU?</h2>
+    <p class="section-sub" style="color:#94a3b8;margin-bottom:48px;">Tausende Unternehmen vertrauen auf IfDAU für ihre rechtssichere Unterweisungsdokumentation.</p>
+    <div class="benefits-grid">
+      <div class="benefit-item">
+        <div class="benefit-check">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="#fca5a5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+        </div>
+        <div>
+          <h4>Kein Papier mehr</h4>
+          <p>Alle Unterweisungsnachweise digital und jederzeit abrufbar.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-check">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="#fca5a5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+        </div>
+        <div>
+          <h4>Erinnerungen automatisch</h4>
+          <p>Das System erinnert Mitarbeiter automatisch an fällige Unterweisungen.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-check">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="#fca5a5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+        </div>
+        <div>
+          <h4>Statusberichte per Firma</h4>
+          <p>Immer aktuell: Wer hat bestanden, wer nicht – als PDF oder Excel.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-check">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="#fca5a5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+        </div>
+        <div>
+          <h4>Mehrere Unternehmen</h4>
+          <p>Verwalten Sie Unterweisungen für mehrere Firmen in einem System.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-check">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="#fca5a5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+        </div>
+        <div>
+          <h4>DSGVO-konform</h4>
+          <p>Server in Deutschland, keine Weitergabe an Dritte, volle Datenkontrolle.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-check">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="#fca5a5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+        </div>
+        <div>
+          <h4>Immer verfügbar</h4>
+          <p>24/7 online – Mitarbeiter können jederzeit und überall unterwiesen werden.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ──────────────────────────────────────────── -->
+<section class="section" style="background:#f8fafc;">
+  <div class="section-inner">
+    <span class="section-label">Kundenstimmen</span>
+    <h2 class="section-title">Das sagen unsere Kunden</h2>
+    <p class="section-sub">Unternehmen aus verschiedenen Branchen nutzen IfDAU für ihre Unterweisungspflichten.</p>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">„Die Einrichtung war in wenigen Minuten erledigt. Unsere Mitarbeiter finden das System sehr übersichtlich und einfach zu bedienen."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">M</div>
+          <div>
+            <div class="testimonial-name">Michael S.</div>
+            <div class="testimonial-role">Arbeitssicherheitsbeauftragter, Logistikunternehmen</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">„Endlich keine Papierberge mehr. Die automatischen PDF-Zertifikate und die Statusberichte pro Firma sparen uns enorm viel Zeit."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">S</div>
+          <div>
+            <div class="testimonial-name">Sandra K.</div>
+            <div class="testimonial-role">Personalleitung, Produktionsunternehmen</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">„Bei der nächsten Betriebsprüfung konnten wir alle Nachweise sofort digital vorweisen. Das System hat sich in kürzester Zeit amortisiert."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">T</div>
+          <div>
+            <div class="testimonial-name">Thomas W.</div>
+            <div class="testimonial-role">Geschäftsführer, Handwerksbetrieb</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA / KONTAKT ─────────────────────────────────────────── -->
+<section class="section cta-section" id="kontakt">
+  <div class="section-inner" style="text-align:center;">
+    <span class="section-label" style="background:rgba(255,255,255,.15);color:#fff;">Jetzt starten</span>
+    <h2 class="section-title">Bereit für rechtssichere Unterweisungen?</h2>
+    <p class="section-sub">Nehmen Sie Kontakt auf – wir richten Ihr System ein und begleiten Sie beim Start.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="mailto:info@ifdau.de" class="btn-cta-white">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+        info@ifdau.de
+      </a>
+      <a href="/login" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:15px 36px;border-radius:8px;font-size:16px;font-weight:700;display:inline-flex;align-items:center;gap:8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg>
+        Direkt anmelden
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ────────────────────────────────────────────────── -->
+<footer class="pub-footer">
+  <div class="pub-footer-inner">
+    <span class="pub-footer-copy">&copy; 2026 IfDAU – Institut für Digitale Arbeitsunterweisungen</span>
+    <nav class="pub-footer-nav">
+      <a href="/impressum">Impressum</a>
+      <a href="/datenschutz">Datenschutz</a>
+      <a href="/agb">AGB</a>
+    </nav>
+  </div>
+</footer>
+
+<%- include('../partials/cookie-banner') %>
+
+</body>
+</html>

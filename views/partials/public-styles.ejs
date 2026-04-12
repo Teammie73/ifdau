@@ -1,0 +1,114 @@
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #0f172a;
+    background: #ffffff;
+    line-height: 1.6;
+  }
+  a { color: #dc2626; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── Header ──────────────────────────────────────────── */
+  .pub-header {
+    position: sticky; top: 0;
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e2e8f0;
+    z-index: 100;
+  }
+  .pub-header-inner {
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 24px;
+    height: 68px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px;
+  }
+  .pub-logo img { height: 52px; width: auto; display: block; }
+  .pub-logo:hover { text-decoration: none; }
+  .pub-nav {
+    display: flex; align-items: center; gap: 28px;
+  }
+  .pub-nav a {
+    font-size: 14px; font-weight: 500; color: #475569;
+  }
+  .pub-nav a:hover { color: #dc2626; text-decoration: none; }
+  .pub-btn-login {
+    background: #dc2626; color: #fff !important;
+    padding: 9px 20px; border-radius: 7px;
+    font-size: 14px; font-weight: 600;
+    transition: background .15s;
+  }
+  .pub-btn-login:hover { background: #b91c1c !important; text-decoration: none; }
+  .pub-nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+
+  /* ── Legal Page ──────────────────────────────────────── */
+  .legal-page {
+    min-height: calc(100vh - 68px - 68px);
+    padding: 60px 24px 80px;
+    background: #f8fafc;
+  }
+  .legal-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    padding: 48px 52px;
+  }
+  .legal-inner h1 {
+    font-size: 32px; font-weight: 900; letter-spacing: -.5px;
+    color: #0f172a; margin-bottom: 6px;
+  }
+  .legal-meta {
+    font-size: 13px; color: #94a3b8; margin-bottom: 40px;
+  }
+  .legal-inner section {
+    margin-bottom: 36px;
+  }
+  .legal-inner section:last-child { margin-bottom: 0; }
+  .legal-inner h2 {
+    font-size: 18px; font-weight: 700;
+    color: #0f172a; margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid #f1f5f9;
+  }
+  .legal-inner h3 {
+    font-size: 15px; font-weight: 700;
+    color: #334155; margin: 16px 0 8px;
+  }
+  .legal-inner p {
+    font-size: 14px; color: #475569;
+    line-height: 1.8; margin-bottom: 12px;
+  }
+  .legal-inner p:last-child { margin-bottom: 0; }
+  .legal-inner ul {
+    font-size: 14px; color: #475569;
+    line-height: 1.8;
+    padding-left: 1.5rem;
+    margin-bottom: 12px;
+  }
+  .legal-inner ul li { margin-bottom: 4px; }
+
+  /* ── Footer ─────────────────────────────────────────── */
+  .pub-footer {
+    background: #0f172a; color: #94a3b8;
+    padding: 28px 24px;
+    font-size: 13px;
+  }
+  .pub-footer-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .pub-footer-nav { display: flex; gap: 20px; flex-wrap: wrap; }
+  .pub-footer-nav a { color: #94a3b8; }
+  .pub-footer-nav a:hover { color: #fff; text-decoration: none; }
+
+  /* ── Mobile ──────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .pub-nav a:not(.pub-btn-login) { display: none; }
+    .legal-inner { padding: 28px 20px; }
+    .pub-footer-inner { flex-direction: column; text-align: center; }
+  }
+</style>
