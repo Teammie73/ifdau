@@ -1,4 +1,1 @@
-node_modules/
-.env
-public/uploads/certificates/*.pdf
-*.DS_Store
+node_modules/\n.env
