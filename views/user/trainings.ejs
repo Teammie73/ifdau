@@ -8,6 +8,63 @@
     <%- include('../partials/topbar', { pageTitle: 'Meine Unterweisungen', adminView: false }) %>
     <div class="page-content">
 
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-body" style="padding:32px 36px;">
+          <h2 style="font-size:1.35rem;font-weight:700;color:var(--text);margin-bottom:20px;">
+            Willkommen bei Ihrer Online-Unterweisung
+          </h2>
+
+          <p style="margin-bottom:6px;">
+            Hier finden Sie alle für Sie zusammengestellten Unterweisungsthemen auf einen Blick.
+          </p>
+          <p style="font-style:italic;font-size:0.875rem;color:var(--text-secondary);margin-bottom:18px;">
+            Here you will find all training topics compiled specifically for you.
+          </p>
+
+          <p style="margin-bottom:6px;">
+            Starten Sie jedes Thema einzeln über die Schaltfläche „Unterweisung starten". Nach dem Durcharbeiten der Inhalte beantworten Sie die zugehörigen Verständnisfragen.
+          </p>
+          <p style="font-style:italic;font-size:0.875rem;color:var(--text-secondary);margin-bottom:18px;">
+            Start each topic individually using the "Start training" button. After reviewing the content, answer the related comprehension questions.
+          </p>
+
+          <p style="margin-bottom:6px;">
+            Nach erfolgreichem Abschluss aller Unterweisungen können Sie Ihr persönliches Zertifikat herunterladen und Ihrem Arbeitgeber vorlegen. Nicht bestandene Themen werden Ihnen zur Wiederholung bereitgestellt.
+          </p>
+          <p style="font-style:italic;font-size:0.875rem;color:var(--text-secondary);margin-bottom:18px;">
+            After successfully completing all training modules, you can download your personal certificate. Topics that were not passed will be made available for you to repeat.
+          </p>
+
+          <p style="margin-bottom:6px;">
+            Nehmen Sie sich ausreichend Zeit für die Inhalte und machen Sie sich bei Bedarf Notizen – so sind Sie bestens auf die abschließenden Fragen vorbereitet.
+          </p>
+          <p style="font-style:italic;font-size:0.875rem;color:var(--text-secondary);margin-bottom:18px;">
+            Take enough time to review the content and take notes if needed – this will prepare you well for the final questions.
+          </p>
+
+          <p style="margin-bottom:6px;">
+            Bei Fragen zu den Inhalten stehen wir Ihnen jederzeit gerne zur Verfügung:
+          </p>
+          <p style="font-style:italic;font-size:0.875rem;color:var(--text-secondary);margin-bottom:12px;">
+            If you have any questions about the content, we are happy to help at any time:
+          </p>
+
+          <div style="margin-bottom:20px;display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:0.9rem;">
+              <span style="color:var(--text-secondary);min-width:36px;display:inline-block;">Mail:</span>
+              <a href="mailto:[your contact email]">[your contact email]</a>
+            </span>
+            <span style="font-size:0.9rem;">
+              <span style="color:var(--text-secondary);min-width:36px;display:inline-block;">Tel:</span>
+              <a href="tel:[your contact number]">[your contact number]</a>
+            </span>
+          </div>
+
+          <p style="font-weight:600;margin-bottom:4px;">Viel Erfolg bei Ihrer Unterweisung!</p>
+          <p style="font-style:italic;font-size:0.875rem;color:var(--text-secondary);">Good luck with your training!</p>
+        </div>
+      </div>
+
       <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
       <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
