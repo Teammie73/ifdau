@@ -11,10 +11,6 @@
       <div class="quiz-container">
         <!-- Header -->
         <div class="d-flex align-center gap-12 mb-16" style="flex-wrap:wrap;">
-          <a href="/trainings/<%= assignment.id %>/read" class="btn btn-sm btn-secondary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-            Zurück
-          </a>
           <span style="font-size:15px;font-weight:600;"><%= assignment.title %></span>
         </div>
 
@@ -33,14 +29,10 @@
         <div id="quizContainer"></div>
 
         <!-- Navigation -->
-        <div class="quiz-nav">
-          <button class="btn btn-secondary" id="btnPrev" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-            Zurück
-          </button>
+        <div class="quiz-nav" style="justify-content:flex-end;">
           <div style="display:flex;gap:10px;">
             <button class="btn btn-primary" id="btnNext">
-              Weiter
+              <span id="btnNextLabel">Weiter</span>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
             <button class="btn btn-success" id="btnSubmit" style="display:none;">

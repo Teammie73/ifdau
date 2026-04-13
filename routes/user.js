@@ -103,7 +103,7 @@ router.get('/trainings/:assignmentId/quiz', isAuthenticated, async (req, res) =>
 
     for (const q of questions) {
       const [answers] = await pool.query(
-        'SELECT id, answer_text FROM answers WHERE question_id = ? ORDER BY RAND()',
+        'SELECT id, answer_text, is_correct FROM answers WHERE question_id = ? ORDER BY RAND()',
         [q.id]
       );
       q.answers = answers;

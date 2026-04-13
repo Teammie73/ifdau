@@ -68,28 +68,56 @@ document.addEventListener('DOMContentLoaded', () => {
    QUIZ ENGINE
    ═══════════════════════════════════════════════════════════ */
 function initQuiz({ questions, passingScore, assignmentId }) {
-  let current = 0;
+  let current    = 0;
+  let inFeedback = false;
   const userAnswers = {}; // { questionId: Set of answerIds }
 
-  const container     = document.getElementById('quizContainer');
-  const progressFill  = document.getElementById('quizProgressFill');
-  const progressText  = document.getElementById('quizProgressText');
-  const btnPrev       = document.getElementById('btnPrev');
-  const btnNext       = document.getElementById('btnNext');
-  const btnSubmit     = document.getElementById('btnSubmit');
-  const form          = document.getElementById('quizForm');
+  const container    = document.getElementById('quizContainer');
+  const progressFill = document.getElementById('quizProgressFill');
+  const progressText = document.getElementById('quizProgressText');
+  const btnNext      = document.getElementById('btnNext');
+  const btnNextLabel = document.getElementById('btnNextLabel');
+  const btnSubmit    = document.getElementById('btnSubmit');
+  const form         = document.getElementById('quizForm');
+
+  // Block browser-back while the quiz is active
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', function () {
+    history.pushState(null, '', location.href);
+  });
 
   function getOrCreate(qId) {
     if (!userAnswers[qId]) userAnswers[qId] = new Set();
     return userAnswers[qId];
   }
 
+  // Show/hide navigation buttons depending on current state
+  function updateNav() {
+    const isLast = current === questions.length - 1;
+    if (!inFeedback) {
+      // Normal mode: Weiter visible, Abgeben hidden
+      if (btnNext)      btnNext.style.display      = '';
+      if (btnNextLabel) btnNextLabel.textContent    = 'Weiter';
+      if (btnSubmit)    btnSubmit.style.display     = 'none';
+    } else if (isLast) {
+      // Feedback shown on last question: hide Weiter, show Abgeben
+      if (btnNext)   btnNext.style.display   = 'none';
+      if (btnSubmit) btnSubmit.style.display  = '';
+    } else {
+      // Feedback shown, not last: relabel Weiter → Nächste Frage
+      if (btnNext)      btnNext.style.display      = '';
+      if (btnNextLabel) btnNextLabel.textContent    = 'Nächste Frage';
+      if (btnSubmit)    btnSubmit.style.display     = 'none';
+    }
+  }
+
   function render() {
+    inFeedback = false;
     const q   = questions[current];
     const pct = Math.round(((current + 1) / questions.length) * 100);
 
-    if (progressFill)  progressFill.style.width = pct + '%';
-    if (progressText)  progressText.textContent = `Frage ${current + 1} von ${questions.length}`;
+    if (progressFill) progressFill.style.width  = pct + '%';
+    if (progressText) progressText.textContent   = `Frage ${current + 1} von ${questions.length}`;
 
     const isMultiple = q.type === 'multiple';
     const selected   = getOrCreate(q.id);
@@ -103,7 +131,8 @@ function initQuiz({ questions, passingScore, assignmentId }) {
         </div>
         <div id="answersWrap">
           ${q.answers.map(a => `
-            <label class="answer-option ${selected.has(String(a.id)) ? 'selected' : ''}">
+            <label class="answer-option ${selected.has(String(a.id)) ? 'selected' : ''}"
+                   data-correct="${a.is_correct ? '1' : '0'}">
               <input type="${isMultiple ? 'checkbox' : 'radio'}"
                      name="q_${q.id}"
                      value="${a.id}"
@@ -114,12 +143,12 @@ function initQuiz({ questions, passingScore, assignmentId }) {
         </div>
       </div>`;
 
-    // Bind answer events
+    // Bind answer selection events
     container.querySelectorAll('input').forEach(inp => {
       inp.addEventListener('change', () => {
-        const qId  = String(q.id);
-        const aId  = String(inp.value);
-        const set  = getOrCreate(qId);
+        const qId = String(q.id);
+        const aId = String(inp.value);
+        const set = getOrCreate(qId);
         if (isMultiple) {
           inp.checked ? set.add(aId) : set.delete(aId);
         } else {
@@ -131,22 +160,54 @@ function initQuiz({ questions, passingScore, assignmentId }) {
       });
     });
 
-    if (btnPrev)   btnPrev.disabled   = current === 0;
-    if (btnNext)   btnNext.style.display  = current < questions.length - 1 ? '' : 'none';
-    if (btnSubmit) btnSubmit.style.display = current === questions.length - 1 ? '' : 'none';
+    updateNav();
   }
 
-  btnPrev  && btnPrev.addEventListener('click',   () => { if (current > 0) { current--; render(); } });
-  btnNext  && btnNext.addEventListener('click',   () => { if (current < questions.length - 1) { current++; render(); } });
+  // Reveal which answers were right/wrong and lock inputs
+  function showFeedback() {
+    inFeedback = true;
+    const selected = getOrCreate(questions[current].id);
 
+    // Disable all inputs so the user cannot change their answers
+    container.querySelectorAll('input').forEach(inp => { inp.disabled = true; });
+
+    // Colour each answer option
+    container.querySelectorAll('.answer-option').forEach(label => {
+      const inp        = label.querySelector('input');
+      const isCorrect  = label.dataset.correct === '1';
+      const wasSelected = selected.has(String(inp.value));
+
+      label.classList.remove('selected');
+      if (isCorrect) {
+        // Every correct answer gets highlighted green (whether chosen or not)
+        label.classList.add('correct');
+      } else if (wasSelected) {
+        // Wrong answer the user chose gets highlighted red
+        label.classList.add('wrong');
+      }
+    });
+
+    updateNav();
+  }
+
+  // "Weiter" / "Nächste Frage" button
+  btnNext && btnNext.addEventListener('click', () => {
+    if (!inFeedback) {
+      showFeedback();           // first click: show feedback
+    } else {
+      current++;
+      render();                 // second click: advance to next question
+    }
+  });
+
+  // "Abgeben" button – only visible after feedback on the last question
   if (btnSubmit && form) {
     btnSubmit.addEventListener('click', () => {
-      // Build hidden answers JSON
       const answersObj = {};
       for (const [qId, set] of Object.entries(userAnswers)) {
         answersObj[qId] = Array.from(set);
       }
-      // Add missing (unanswered) questions
+      // Include unanswered questions as empty arrays
       questions.forEach(q => {
         if (!answersObj[q.id]) answersObj[q.id] = [];
       });
