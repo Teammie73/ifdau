@@ -82,7 +82,7 @@
             </div>
 
             <!-- Checkbox: erscheint nach dem kompletten Lerninhalt -->
-            <% if (assignment.status !== 'completed') { %>
+            <% if (assignment.status !== 'passed') { %>
             <div class="read-confirm">
               <label class="read-check-label" for="readConfirm">
                 <input type="checkbox" id="readConfirm">
@@ -123,7 +123,7 @@
   </div>
 </div>
 <script src="/js/main.js"></script>
-<% if (assignment.status !== 'completed') { %>
+<% if (assignment.status !== 'passed') { %>
 <script>
   var cb  = document.getElementById('readConfirm');
   var btn = document.getElementById('startQuizBtn');

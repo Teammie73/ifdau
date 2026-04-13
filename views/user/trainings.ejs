@@ -99,7 +99,7 @@
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-            <% if (a.status === 'completed') { %>
+            <% if (a.status === 'passed') { %>
               <span class="badge badge-completed">✓ Bestanden</span>
             <% } else if (a.status === 'failed') { %>
               <span class="badge badge-failed">✗ Nicht bestanden</span>
@@ -109,7 +109,7 @@
               <span class="badge badge-open">● Offen</span>
             <% } %>
             <a href="/trainings/<%= a.id %>/read" class="btn btn-sm btn-primary">
-              <%= a.status === 'completed' ? 'Wiederholen' : 'Jetzt starten' %>
+              <%= a.status === 'passed' ? 'Wiederholen' : 'Jetzt starten' %>
             </a>
           </div>
         </div>

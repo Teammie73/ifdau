@@ -20,7 +20,7 @@ router.get(['/', '/dashboard'], async (req, res) => {
     const [[{ total_users }]] = await pool.query("SELECT COUNT(*) as total_users FROM users WHERE role='mitarbeiter'");
     const [[{ total_trainings }]] = await pool.query("SELECT COUNT(*) as total_trainings FROM trainings WHERE status='active'");
     const [[{ total_assignments }]] = await pool.query('SELECT COUNT(*) as total_assignments FROM assignments');
-    const [[{ completed }]] = await pool.query("SELECT COUNT(*) as completed FROM assignments WHERE status='completed'");
+    const [[{ completed }]] = await pool.query("SELECT COUNT(*) as completed FROM assignments WHERE status='passed'");
     const [[{ open }]] = await pool.query("SELECT COUNT(*) as open FROM assignments WHERE status='open'");
     const [[{ overdue }]] = await pool.query("SELECT COUNT(*) as overdue FROM assignments WHERE status='overdue'");
     const [recent] = await pool.query(`
@@ -393,7 +393,7 @@ router.post('/assignments', async (req, res) => {
     for (const tid of trainingIds) {
       for (const uid of targetUserIds) {
         const [existing] = await conn.query(
-          "SELECT id FROM assignments WHERE training_id=? AND user_id=? AND status IN ('open','overdue')",
+          'SELECT id FROM assignments WHERE training_id=? AND user_id=?',
           [tid, uid]
         );
         if (existing.length === 0) {
@@ -442,7 +442,7 @@ router.get('/reports', async (req, res) => {
     const firmen = firmenRows.map(r => r.firma);
 
     const [[{ completed }]] = await pool.query(
-      `SELECT COUNT(*) as completed FROM assignments a JOIN users u ON u.id=a.user_id WHERE a.status='completed' ${firmaWhere}`,
+      `SELECT COUNT(*) as completed FROM assignments a JOIN users u ON u.id=a.user_id WHERE a.status='passed' ${firmaWhere}`,
       firmaParam
     );
     const [[{ open }]] = await pool.query(
@@ -610,7 +610,7 @@ function buildUserStatusReport(rows) {
       if (a.status === 'overdue') hasOverdue = true;
       if (a.status === 'failed')  hasFailed  = true;
 
-      if (a.status === 'completed') {
+      if (a.status === 'passed') {
         completedCount++;
         if (a.completed_at && a.repeat_interval !== 'once') {
           const vu = new Date(a.completed_at);
@@ -631,7 +631,7 @@ function buildUserStatusReport(rows) {
       }
     }
 
-    const allCompleted = assignments.every(a => a.status === 'completed');
+    const allCompleted = assignments.every(a => a.status === 'passed');
     return {
       id: user.id, name: user.name, email: user.email,
       overallStatus: (allCompleted && !hasExpired) ? 'green' : 'red',

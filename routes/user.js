@@ -23,7 +23,7 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
     `, [userId]);
 
     const total = assignments.length;
-    const completed = assignments.filter(a => a.status === 'completed').length;
+    const completed = assignments.filter(a => a.status === 'passed').length;
 
     res.render('user/dashboard', {
       title: 'Dashboard',
@@ -50,7 +50,7 @@ router.get('/my-trainings', isAuthenticated, async (req, res) => {
       LEFT JOIN categories c ON c.id = t.category_id
       LEFT JOIN results r ON r.assignment_id = a.id AND r.passed = 1
       WHERE a.user_id = ?
-      ORDER BY FIELD(a.status,'overdue','open','failed','completed'), a.due_date ASC
+      ORDER BY FIELD(a.status,'overdue','open','failed','passed'), a.due_date ASC
     `, [userId]);
 
     res.render('user/trainings', { title: 'Meine Unterweisungen', assignments });
@@ -172,7 +172,7 @@ router.post('/trainings/:assignmentId/quiz/submit', isAuthenticated, async (req,
     const total = questions.length;
     const score = total > 0 ? Math.round((correct / total) * 100) : 0;
     const passed = score >= assignment.passing_score;
-    const newStatus = passed ? 'completed' : 'failed';
+    const newStatus = passed ? 'passed' : 'failed';
 
     // Save result
     const [rResult] = await pool.query(
@@ -185,27 +185,30 @@ router.post('/trainings/:assignmentId/quiz/submit', isAuthenticated, async (req,
     await pool.query('UPDATE assignments SET status = ? WHERE id = ?', [newStatus, assignment.id]);
 
     // Generate certificate if passed
-    let certPath = null;
     if (passed) {
-      const [userRows] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
-      const [trainRows] = await pool.query('SELECT * FROM trainings WHERE id = ?', [assignment.training_id]);
-
-      const [certInsert] = await pool.query(
-        'INSERT INTO certificates (user_id, training_id, result_id, pdf_path) VALUES (?, ?, ?, ?)',
-        [userId, assignment.training_id, resultId, '']
-      );
-      const certId = certInsert.insertId;
-
       try {
-        certPath = await generateCertificate({
-          user: userRows[0],
-          training: trainRows[0],
-          result: { score },
-          certId
-        });
-        await pool.query('UPDATE certificates SET pdf_path = ? WHERE id = ?', [certPath, certId]);
-      } catch (pdfErr) {
-        console.error('PDF-Generierung fehlgeschlagen:', pdfErr.message);
+        const [userRows] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
+        const [trainRows] = await pool.query('SELECT * FROM trainings WHERE id = ?', [assignment.training_id]);
+
+        const [certInsert] = await pool.query(
+          'INSERT INTO certificates (user_id, training_id, result_id, pdf_path) VALUES (?, ?, ?, ?)',
+          [userId, assignment.training_id, resultId, '']
+        );
+        const certId = certInsert.insertId;
+
+        try {
+          const certPath = await generateCertificate({
+            user: userRows[0],
+            training: trainRows[0],
+            result: { score },
+            certId
+          });
+          await pool.query('UPDATE certificates SET pdf_path = ? WHERE id = ?', [certPath, certId]);
+        } catch (pdfErr) {
+          console.error('PDF-Generierung fehlgeschlagen:', pdfErr.message);
+        }
+      } catch (certErr) {
+        console.error('Zertifikat-Erstellung fehlgeschlagen:', certErr.message);
       }
     }
 

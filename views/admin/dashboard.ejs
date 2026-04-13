@@ -118,7 +118,7 @@
                 <td class="td-muted"><%= r.training_title %></td>
                 <td class="td-muted"><%= new Date(r.assigned_at).toLocaleDateString('de-DE') %></td>
                 <td>
-                  <% if (r.status === 'completed') { %><span class="badge badge-completed">Bestanden</span>
+                  <% if (r.status === 'passed') { %><span class="badge badge-completed">Bestanden</span>
                   <% } else if (r.status === 'failed') { %><span class="badge badge-failed">Nicht bestanden</span>
                   <% } else if (r.status === 'overdue') { %><span class="badge badge-overdue">Überfällig</span>
                   <% } else { %><span class="badge badge-open">Offen</span><% } %>

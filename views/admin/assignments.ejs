@@ -55,7 +55,7 @@
                   <% } else { %> – <% } %>
                 </td>
                 <td>
-                  <% if (a.status === 'completed') { %><span class="badge badge-completed">Bestanden</span>
+                  <% if (a.status === 'passed') { %><span class="badge badge-completed">Bestanden</span>
                   <% } else if (a.status === 'failed') { %><span class="badge badge-failed">Nicht bestanden</span>
                   <% } else if (a.status === 'overdue') { %><span class="badge badge-overdue">Überfällig</span>
                   <% } else { %><span class="badge badge-open">Offen</span><% } %>
