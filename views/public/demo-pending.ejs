@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%23dc2626'/><text x='16' y='21' text-anchor='middle' font-size='13' font-weight='800' fill='white' font-family='Arial'>If</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #0f172a; background: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,.08); padding: 48px 40px; width: 100%; max-width: 480px; text-align: center; }
+    .icon-wrap { width: 72px; height: 72px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+    .icon-wrap svg { width: 36px; height: 36px; color: #dc2626; }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+    p  { font-size: 15px; color: #64748b; line-height: 1.7; margin-bottom: 16px; }
+    .email-highlight { display: inline-block; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 14px; font-weight: 600; color: #0f172a; font-size: 15px; margin: 8px 0 20px; }
+    .hint { font-size: 13px; color: #94a3b8; margin-top: 8px; }
+    a.back { display: inline-block; margin-top: 28px; font-size: 14px; color: #64748b; }
+    a.back:hover { color: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+      </svg>
+    </div>
+    <h1>Bestätigungs-E-Mail gesendet</h1>
+    <p>Wir haben eine Bestätigungs-E-Mail an</p>
+    <div class="email-highlight"><%= email %></div>
+    <p>gesendet. Bitte klicken Sie auf den Aktivierungslink in der E-Mail, um Ihren kostenlosen 14-Tage-Demo-Zugang zu aktivieren.</p>
+    <p class="hint">Keine E-Mail erhalten? Prüfen Sie bitte Ihren Spam-Ordner. Der Link ist 48 Stunden gültig.</p>
+    <a href="/" class="back">← Zurück zur Startseite</a>
+  </div>
+</body>
+</html>

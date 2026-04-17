@@ -40,11 +40,17 @@
   </nav>
 
   <div class="sidebar-footer">
+    <% if (user && user.role === 'demo_admin') { %>
+    <div style="background:var(--danger-bg,#fef2f2);border:1px solid var(--danger-border,#fca5a5);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;text-align:center;">
+      <span style="font-weight:800;color:var(--danger,#dc2626);letter-spacing:.05em;">DEMO</span>
+      <span style="color:var(--text-secondary);margin-left:6px;">– 14-Tage-Testzugang</span>
+    </div>
+    <% } %>
     <div class="sidebar-user">
       <div class="user-avatar"><%= user ? user.name.charAt(0).toUpperCase() : '?' %></div>
       <div class="user-info">
         <span class="user-name"><%= user ? user.name : '' %></span>
-        <span class="user-role"><%= user && user.role === 'admin' ? 'Administrator' : 'Mitarbeiter' %></span>
+        <span class="user-role"><%= user && user.role === 'admin' ? 'Administrator' : user && user.role === 'demo_admin' ? 'Demo-Zugang' : 'Mitarbeiter' %></span>
       </div>
     </div>
     <a href="/change-password" class="btn-logout" style="margin-bottom:6px;">

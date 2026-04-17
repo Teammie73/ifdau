@@ -54,7 +54,7 @@ router.post('/login', async (req, res) => {
       id: user.id, name: user.name, email: user.email,
       role: user.role, abteilung: user.abteilung, position: user.position
     };
-    const returnTo = req.session.returnTo || (user.role === 'admin' ? '/admin/dashboard' : '/dashboard');
+    const returnTo = req.session.returnTo || (['admin'].includes(user.role) ? '/admin/dashboard' : '/dashboard');
     delete req.session.returnTo;
     res.redirect(returnTo);
   } catch (err) {

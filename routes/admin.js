@@ -920,4 +920,102 @@ router.get('/reminders', async (req, res) => {
   }
 });
 
+// ─── DEMO-ACCOUNTS ─────────────────────────────────────────────────────────
+
+router.get('/demo-accounts', async (req, res) => {
+  try {
+    const [demos] = await pool.query(`
+      SELECT da.*,
+             u.name as user_name, u.email as user_email,
+             DATEDIFF(da.expires_at, NOW()) as days_remaining
+      FROM demo_accounts da
+      LEFT JOIN users u ON u.id = da.demo_user_id
+      ORDER BY da.created_at DESC
+    `);
+    res.render('admin/demo-accounts', { title: 'Demo-Zugänge', demos });
+  } catch (err) {
+    console.error(err);
+    res.render('admin/demo-accounts', { title: 'Demo-Zugänge', demos: [] });
+  }
+});
+
+// Demo verlängern (+14 Tage)
+router.post('/demo-accounts/:id/extend', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM demo_accounts WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.redirect('/admin/demo-accounts');
+
+    const demo = rows[0];
+    const base = demo.expires_at && new Date(demo.expires_at) > new Date()
+      ? new Date(demo.expires_at)
+      : new Date();
+    const newExpiry = new Date(base.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+    await pool.query(
+      "UPDATE demo_accounts SET expires_at = ?, status = 'active' WHERE id = ?",
+      [newExpiry, req.params.id]
+    );
+    if (demo.demo_user_id) {
+      await pool.query("UPDATE users SET status = 'active' WHERE id = ?", [demo.demo_user_id]);
+      await pool.query(
+        "UPDATE assignments SET due_date = ? WHERE user_id = ? AND due_date IS NOT NULL",
+        [newExpiry, demo.demo_user_id]
+      );
+    }
+    req.session.success = `Demo für ${demo.company_name} um 14 Tage verlängert.`;
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Fehler beim Verlängern.';
+  }
+  res.redirect('/admin/demo-accounts');
+});
+
+// Demo deaktivieren
+router.post('/demo-accounts/:id/deactivate', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM demo_accounts WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.redirect('/admin/demo-accounts');
+    const demo = rows[0];
+
+    await pool.query("UPDATE demo_accounts SET status = 'deactivated' WHERE id = ?", [req.params.id]);
+    if (demo.demo_user_id) {
+      await pool.query("UPDATE users SET status = 'inactive' WHERE id = ?", [demo.demo_user_id]);
+    }
+    req.session.success = `Demo für ${demo.company_name} deaktiviert.`;
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Fehler beim Deaktivieren.';
+  }
+  res.redirect('/admin/demo-accounts');
+});
+
+// Demo löschen (inkl. User und Daten)
+router.delete('/demo-accounts/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM demo_accounts WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.redirect('/admin/demo-accounts');
+    const demo = rows[0];
+
+    if (demo.demo_user_id) {
+      const userId = demo.demo_user_id;
+      const [asgRows] = await pool.query('SELECT id FROM assignments WHERE user_id = ?', [userId]);
+      for (const a of asgRows) {
+        await pool.query('DELETE FROM results WHERE assignment_id = ?', [a.id]);
+        await pool.query('DELETE FROM reminders WHERE assignment_id = ?', [a.id]);
+      }
+      await pool.query('DELETE FROM assignments WHERE user_id = ?', [userId]);
+      await pool.query('DELETE FROM certificates WHERE user_id = ?', [userId]);
+      await pool.query('DELETE FROM users WHERE id = ?', [userId]);
+    }
+    await pool.query('DELETE FROM reminders WHERE assignment_id = ?', [demo.id]);
+    await pool.query('DELETE FROM demo_accounts WHERE id = ?', [demo.id]);
+
+    req.session.success = `Demo-Zugang für ${demo.company_name} wurde gelöscht.`;
+  } catch (err) {
+    console.error(err);
+    req.session.error = 'Fehler beim Löschen.';
+  }
+  res.redirect('/admin/demo-accounts');
+});
+
 module.exports = router;

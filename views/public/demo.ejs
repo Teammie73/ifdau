@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <meta name="description" content="Kostenlosen 14-Tage-Demo-Zugang für IfDAU anfordern.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%23dc2626'/><text x='16' y='21' text-anchor='middle' font-size='13' font-weight='800' fill='white' font-family='Arial'>If</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #0f172a; background: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: #dc2626; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .pub-header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0 24px; }
+    .pub-header-inner { max-width: 1100px; margin: 0 auto; height: 80px; display: flex; align-items: center; justify-content: space-between; }
+    .pub-logo img { height: 60px; width: auto; }
+    .pub-nav-link { font-size: 14px; color: #64748b; font-weight: 500; }
+    .pub-nav-link:hover { color: #dc2626; text-decoration: none; }
+
+    .page-content { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 48px 24px; }
+    .demo-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,.08); padding: 40px; width: 100%; max-width: 520px; }
+
+    .demo-header { text-align: center; margin-bottom: 32px; }
+    .demo-badge { display: inline-flex; align-items: center; gap: 8px; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 700; margin-bottom: 16px; letter-spacing: .04em; }
+    .demo-header h1 { font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+    .demo-header p  { font-size: 14px; color: #64748b; line-height: 1.6; }
+
+    .features-list { display: flex; flex-direction: column; gap: 8px; margin: 20px 0 28px; }
+    .feature-row { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #334155; }
+    .feature-row svg { width: 18px; height: 18px; color: #16a34a; flex-shrink: 0; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px 14px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 14px; color: #0f172a; transition: border-color .15s; font-family: inherit; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #dc2626; }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+
+    .btn-primary { width: 100%; padding: 13px; background: #dc2626; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background .15s; }
+    .btn-primary:hover { background: #b91c1c; }
+
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; }
+    .alert-error   { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+    .alert-success { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+    .alert-info    { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+
+    .divider { text-align: center; font-size: 13px; color: #94a3b8; margin: 20px 0; }
+    .back-link { display: block; text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; }
+    .back-link a { color: #dc2626; }
+
+    .required { color: #dc2626; }
+
+    .pub-footer { background: #0f172a; color: #94a3b8; padding: 20px 24px; font-size: 13px; text-align: center; }
+    .pub-footer a { color: #94a3b8; margin: 0 10px; }
+    .pub-footer a:hover { color: #fff; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header class="pub-header">
+  <div class="pub-header-inner">
+    <a href="/" class="pub-logo"><img src="/logo.png" alt="IfDAU Logo"></a>
+    <a href="/login" class="pub-nav-link">Anmelden →</a>
+  </div>
+</header>
+
+<div class="page-content">
+  <div class="demo-card">
+
+    <% if (success) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <% if (!showContactForm) { %>
+    <!-- ── Standard-Registrierungsformular ── -->
+    <div class="demo-header">
+      <div class="demo-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        14 Tage kostenlos
+      </div>
+      <h1>Demo anfordern</h1>
+      <p>Testen Sie IfDAU 14 Tage lang kostenlos und unverbindlich mit 3 vorgefertigten Demo-Unterweisungen.</p>
+    </div>
+
+    <div class="features-list">
+      <div class="feature-row">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+        3 Demo-Unterweisungen inklusive
+      </div>
+      <div class="feature-row">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+        Sofortiger Zugang nach E-Mail-Bestätigung
+      </div>
+      <div class="feature-row">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+        Keine Kreditkarte erforderlich
+      </div>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/demo">
+      <div class="form-group">
+        <label>Firmenname <span class="required">*</span></label>
+        <input type="text" name="company_name" required placeholder="Mustermann GmbH" value="<%= prefill.company_name || '' %>">
+      </div>
+      <div class="form-group">
+        <label>Ihr Name <span class="required">*</span></label>
+        <input type="text" name="contact_name" required placeholder="Max Mustermann" value="<%= prefill.contact_name || '' %>">
+      </div>
+      <div class="form-group">
+        <label>Geschäftliche E-Mail-Adresse <span class="required">*</span></label>
+        <input type="email" name="email" required placeholder="m.mustermann@firma.de" value="<%= prefill.email || '' %>">
+      </div>
+      <div class="form-group">
+        <label>Telefon (optional)</label>
+        <input type="tel" name="phone" placeholder="+49 30 12345678" value="<%= prefill.phone || '' %>">
+      </div>
+      <button type="submit" class="btn-primary">Kostenlosen Demo-Zugang anfordern →</button>
+    </form>
+
+    <% } else { %>
+    <!-- ── Kontaktformular für Freemail-Nutzer ── -->
+    <div class="demo-header">
+      <h1>Demo anfragen</h1>
+      <p>Für Privatmailadressen richten wir Demos manuell ein. Senden Sie uns eine kurze Anfrage – wir melden uns innerhalb eines Werktages.</p>
+    </div>
+
+    <div class="alert alert-info">
+      Sie haben eine private E-Mail-Adresse angegeben (<strong><%= prefill.email %></strong>). Demo-Zugänge werden nur für geschäftliche E-Mail-Adressen automatisch erstellt. Gerne richten wir Ihren Zugang manuell ein.
+    </div>
+
+    <form method="POST" action="/demo/contact">
+      <input type="hidden" name="company_name" value="<%= prefill.company_name || '' %>">
+      <input type="hidden" name="email" value="<%= prefill.email || '' %>">
+      <div class="form-group">
+        <label>Ihr Name</label>
+        <input type="text" name="contact_name" value="<%= prefill.contact_name || '' %>" readonly style="background:#f8fafc;">
+      </div>
+      <div class="form-group">
+        <label>Firma</label>
+        <input type="text" name="company_name_display" value="<%= prefill.company_name || '' %>" readonly style="background:#f8fafc;">
+      </div>
+      <div class="form-group">
+        <label>Kurze Nachricht (optional)</label>
+        <textarea name="message" placeholder="Ich interessiere mich für IfDAU für mein Unternehmen..."></textarea>
+      </div>
+      <button type="submit" class="btn-primary">Anfrage senden</button>
+    </form>
+
+    <div class="divider">— oder —</div>
+    <div style="text-align:center;font-size:14px;color:#64748b;">Registrieren Sie sich mit Ihrer geschäftlichen E-Mail-Adresse für sofortigen Zugang.</div>
+    <% } %>
+
+    <div class="back-link"><a href="/">← Zurück zur Startseite</a></div>
+  </div>
+</div>
+
+<footer class="pub-footer">
+  &copy; 2026 IfDAU
+  <a href="/impressum">Impressum</a>
+  <a href="/datenschutz">Datenschutz</a>
+  <a href="/agb">AGB</a>
+</footer>
+
+</body>
+</html>

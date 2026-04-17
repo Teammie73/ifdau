@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../db/connection');
 const bcrypt = require('bcryptjs');
 const { isAuthenticated } = require('../middleware/auth');
-const { generateCertificate } = require('../utils/pdf');
+const { generateCertificate, generateFinalCertificate } = require('../utils/pdf');
 const path = require('path');
 const fs = require('fs');
 
@@ -201,7 +201,8 @@ router.post('/trainings/:assignmentId/quiz/submit', isAuthenticated, async (req,
             user: userRows[0],
             training: trainRows[0],
             result: { score },
-            certId
+            certId,
+            isDemo: userRows[0].role === 'demo_admin'
           });
           await pool.query('UPDATE certificates SET pdf_path = ? WHERE id = ?', [certPath, certId]);
         } catch (pdfErr) {
@@ -259,10 +260,71 @@ router.get('/certificates', isAuthenticated, async (req, res) => {
       ORDER BY cert.issued_at DESC
     `, [userId]);
 
-    res.render('user/certificates', { title: 'Meine Zertifikate', certificates: certs });
+    const [assignments] = await pool.query(
+      'SELECT status FROM assignments WHERE user_id = ?', [userId]
+    );
+    const allPassed = assignments.length > 0 && assignments.every(a => a.status === 'passed');
+
+    res.render('user/certificates', {
+      title: 'Meine Zertifikate',
+      certificates: certs,
+      allPassed,
+      totalAssignments: assignments.length
+    });
   } catch (err) {
     console.error(err);
-    res.render('user/certificates', { title: 'Meine Zertifikate', certificates: [] });
+    res.render('user/certificates', {
+      title: 'Meine Zertifikate',
+      certificates: [],
+      allPassed: false,
+      totalAssignments: 0
+    });
+  }
+});
+
+// GET /certificate/final
+router.get('/certificate/final', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+
+    const [[user]] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (!user) return res.redirect('/my-trainings');
+
+    const [assignments] = await pool.query(
+      `SELECT a.status, t.title
+       FROM assignments a
+       JOIN trainings t ON t.id = a.training_id
+       WHERE a.user_id = ?
+       ORDER BY t.title ASC`,
+      [userId]
+    );
+
+    if (assignments.length === 0) {
+      return res.status(400).send('Keine Unterweisungen vorhanden.');
+    }
+
+    const allPassed = assignments.every(a => a.status === 'passed');
+    if (!allPassed) {
+      return res.status(403).send(
+        'Nicht alle Unterweisungen wurden bestanden. ' +
+        'Das Gesamtzertifikat steht erst zur Verfügung, wenn alle Unterweisungen erfolgreich absolviert wurden.'
+      );
+    }
+
+    const now      = new Date();
+    const dStr     = now.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                        .replace(/\./g, '-');
+    const safeName = user.name.replace(/[^\wäöüÄÖÜß\s]/g, '').replace(/\s+/g, '_');
+    const filename = `IfDAU-Zertifikat-${safeName}-${dStr}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    generateFinalCertificate({ user, trainings: assignments, res });
+
+  } catch (err) {
+    console.error('Fehler Gesamtzertifikat:', err);
+    if (!res.headersSent) res.status(500).send('Fehler beim Erstellen des Zertifikats.');
   }
 });
 

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><%- include('../partials/head') %></head>
+<body>
+<div class="app-layout">
+  <%- include('../partials/admin-sidebar', { activePage: 'demo-accounts' }) %>
+  <div class="main-content">
+    <%- include('../partials/topbar', { pageTitle: 'Demo-Zugänge', adminView: true }) %>
+    <div class="page-content">
+
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success" style="margin-bottom:16px;"><%= success %></div>
+      <% } %>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger" style="margin-bottom:16px;"><%= error %></div>
+      <% } %>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px;">
+        <%
+          const totalDemo  = demos.length;
+          const activeDemo = demos.filter(d => d.status === 'active').length;
+          const pendingDemo= demos.filter(d => d.status === 'pending').length;
+          const expiredDemo= demos.filter(d => d.status === 'expired' || d.status === 'deactivated').length;
+        %>
+        <div class="card"><div class="card-body" style="padding:16px 20px;">
+          <div style="font-size:28px;font-weight:800;color:var(--text)"><%= totalDemo %></div>
+          <div style="font-size:13px;color:var(--text-secondary)">Gesamt</div>
+        </div></div>
+        <div class="card"><div class="card-body" style="padding:16px 20px;">
+          <div style="font-size:28px;font-weight:800;color:var(--success)"><%= activeDemo %></div>
+          <div style="font-size:13px;color:var(--text-secondary)">Aktiv</div>
+        </div></div>
+        <div class="card"><div class="card-body" style="padding:16px 20px;">
+          <div style="font-size:28px;font-weight:800;color:var(--warning)"><%= pendingDemo %></div>
+          <div style="font-size:13px;color:var(--text-secondary)">Ausstehend</div>
+        </div></div>
+        <div class="card"><div class="card-body" style="padding:16px 20px;">
+          <div style="font-size:28px;font-weight:800;color:var(--text-secondary)"><%= expiredDemo %></div>
+          <div style="font-size:13px;color:var(--text-secondary)">Abgelaufen</div>
+        </div></div>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="card-header" style="padding:16px 20px;border-bottom:1px solid var(--border);">
+          <h3 class="card-title" style="margin:0;font-size:15px;font-weight:700;">Alle Demo-Zugänge</h3>
+        </div>
+        <% if (demos.length === 0) { %>
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:block;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <h3>Noch keine Demo-Zugänge</h3>
+            <p>Demo-Anfragen erscheinen hier, sobald jemand das Formular auf der Startseite ausfüllt.</p>
+          </div>
+        <% } else { %>
+        <div style="overflow-x:auto;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Firma</th>
+                <th>Ansprechpartner</th>
+                <th>E-Mail</th>
+                <th>Status</th>
+                <th>Erstellt</th>
+                <th>Läuft ab</th>
+                <th>Tage</th>
+                <th style="text-align:right;">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% demos.forEach(demo => { %>
+              <tr>
+                <td style="font-weight:600;"><%= demo.company_name %></td>
+                <td><%= demo.contact_name %></td>
+                <td><a href="mailto:<%= demo.email %>"><%= demo.email %></a></td>
+                <td>
+                  <% if (demo.status === 'active') { %>
+                    <span class="badge badge-success">Aktiv</span>
+                  <% } else if (demo.status === 'pending') { %>
+                    <span class="badge badge-warning">Ausstehend</span>
+                  <% } else if (demo.status === 'expired') { %>
+                    <span class="badge badge-archived">Abgelaufen</span>
+                  <% } else { %>
+                    <span class="badge badge-archived">Deaktiviert</span>
+                  <% } %>
+                </td>
+                <td style="font-size:13px;color:var(--text-secondary);">
+                  <%= new Date(demo.created_at).toLocaleDateString('de-DE') %>
+                </td>
+                <td style="font-size:13px;color:var(--text-secondary);">
+                  <% if (demo.expires_at) { %>
+                    <%= new Date(demo.expires_at).toLocaleDateString('de-DE') %>
+                  <% } else { %>
+                    –
+                  <% } %>
+                </td>
+                <td>
+                  <% if (demo.status === 'active' && demo.days_remaining !== null) { %>
+                    <span style="font-size:13px;font-weight:700;color:<%= demo.days_remaining <= 2 ? 'var(--danger)' : demo.days_remaining <= 5 ? 'var(--warning)' : 'var(--success)' %>">
+                      <%= Math.max(0, demo.days_remaining) %>d
+                    </span>
+                  <% } else { %>
+                    –
+                  <% } %>
+                </td>
+                <td style="text-align:right;">
+                  <div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;">
+                    <!-- Verlängern -->
+                    <form method="POST" action="/admin/demo-accounts/<%= demo.id %>/extend" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-secondary"
+                              onclick="return confirm('Demo um 14 Tage verlängern?')"
+                              title="Um 14 Tage verlängern">
+                        +14d
+                      </button>
+                    </form>
+                    <!-- Deaktivieren -->
+                    <% if (demo.status === 'active' || demo.status === 'pending') { %>
+                    <form method="POST" action="/admin/demo-accounts/<%= demo.id %>/deactivate" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-ghost"
+                              style="color:var(--warning)"
+                              onclick="return confirm('Demo deaktivieren?')"
+                              title="Deaktivieren">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                      </button>
+                    </form>
+                    <% } %>
+                    <!-- Löschen -->
+                    <form method="POST" action="/admin/demo-accounts/<%= demo.id %>?_method=DELETE" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-ghost"
+                              style="color:var(--danger)"
+                              onclick="return confirm('Demo-Zugang und alle Daten dauerhaft löschen?')"
+                              title="Löschen">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

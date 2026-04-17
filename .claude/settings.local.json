@@ -10,7 +10,9 @@
       "Bash(npm start:*)",
       "Read(//tmp/**)",
       "Read(//private/tmp/**)",
-      "Bash(jobs)"
+      "Bash(jobs)",
+      "Bash(identify /Users/andreasmielecke/Dokumente_keineCLoud/claude/ifdau/public/logo.png)",
+      "Bash(node:*)"
     ]
   }
 }
